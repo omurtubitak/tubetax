@@ -1,0 +1,2736 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Şahıs Firması Vergi Hesaplama</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            background: var(--gradient-bg);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        .header-title { color: #fff; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .form-control, .form-select { background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; }
+        .form-control:focus, .form-select:focus { background: #fff; border-color: var(--secondary-color); box-shadow: 0 0 20px rgba(52,152,219,0.3); }
+        .form-label { color: #fff; margin-bottom: .3rem; font-size: .92rem; }
+        .form-text, .hint { color: rgba(255,255,255,0.78) !important; font-size: .84rem; }
+        .form-check-label { color: #fff; }
+        .btn-custom {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            border: none; border-radius: 25px; padding: 11px 26px;
+            color: white; font-weight: 600; transition: all 0.25s ease;
+        }
+        .btn-custom:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: white; }
+        .btn-report {
+            background: #fff; color: var(--primary-color); border: none; border-radius: 25px;
+            padding: 12px 28px; font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+        .btn-report:hover { background: #f1f4f8; color: var(--primary-color); }
+        .result-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.1));
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.3); height: 100%;
+        }
+        .result-card h6 { color: #fff; margin-bottom: .3rem; }
+        .result-sub { color: rgba(255,255,255,0.8); font-size: .85rem; }
+        .result-value { font-size: 1.5rem; font-weight: 700; color: #fff; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); word-break: break-word; }
+        .result-value.pos { color: #2ecc71; }
+        .result-value.neg { color: #ff7675; }
+        .table-custom { background: rgba(255,255,255,0.95); border-radius: 15px; overflow: hidden; margin-bottom: 0; font-size: .9rem; }
+        .table-custom th { background: var(--primary-color); color: white; border: none; font-weight: 600; white-space: nowrap; }
+        .table-custom td { border: none; border-bottom: 1px solid rgba(0,0,0,0.07); vertical-align: middle; }
+        .table-custom tr.total td { font-weight: 700; background: #eef3f8; }
+        .table-custom tr.renew td { background: #fff8e6; }
+        .table-custom tr.past td { color: #8a94a3; }
+        .table-custom tr.carry td:first-child { border-left: 4px solid #8e44ad; }
+        .carry-badge { font-size: .7rem; font-weight: 700; border-radius: 8px; padding: 1px 7px; background: #f3e8fb; color: #7d3c98; margin-left: 4px; white-space: nowrap; }
+        .status-paid { color: #1e7c45; font-weight: 600; font-size: .8rem; }
+        .status-due { color: #b25d00; font-weight: 600; font-size: .8rem; }
+        .year-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        .year-bar .form-select { width: auto; min-width: 120px; font-weight: 700; }
+        .est-badge { background: #f39c12; color: #fff; border-radius: 10px; padding: 4px 10px; font-size: .8rem; font-weight: 600; }
+        .table-custom td.num, .table-custom th.num { text-align: right; white-space: nowrap; }
+        .delete-btn { background: var(--danger-color); border: none; border-radius: 50%; width: 30px; height: 30px; color: white; }
+        .delete-btn:hover { background: #c0392b; }
+        .section-title { color: #fff; margin-bottom: 1.1rem; font-size: 1.45rem; }
+        .notice { background: rgba(0,0,0,0.18); border-radius: 12px; color: rgba(255,255,255,0.92); font-size: .9rem; }
+        .notice li { margin-bottom: .35rem; }
+        .rate-badge { display: inline-block; min-width: 44px; text-align: center; border-radius: 8px; padding: 2px 6px; font-weight: 700; font-size: .8rem; color: #fff; }
+        .r15 { background: #27ae60; } .r20 { background: #2d98da; } .r27 { background: #f39c12; } .r35 { background: #e67e22; } .r40 { background: #e74c3c; } .r0 { background: #95a5a6; }
+        .pill { font-size: .72rem; padding: 2px 8px; border-radius: 10px; background: #f39c12; color: #fff; font-weight: 700; margin-left: 6px; }
+        .type-badge { font-size: .75rem; font-weight: 600; border-radius: 8px; padding: 2px 8px; }
+        .t-bagkur { background: #e8f4fd; color: #1f6fa8; } .t-kdv { background: #eaf7ef; color: #1e7c45; }
+        .t-gv { background: #fff3e0; color: #b25d00; } .t-yillik { background: #fdecea; color: #b03a2e; }
+        /* Rapor */
+        .report-content h5 { margin-top: 1.6rem; color: var(--primary-color); border-bottom: 2px solid #e3e8ef; padding-bottom: .35rem; }
+        .report-content h5:first-child { margin-top: 0; }
+        .report-content .formula { background: #f5f7fa; border-left: 4px solid var(--secondary-color); padding: .55rem .8rem; border-radius: 6px; font-family: Consolas, 'Courier New', monospace; font-size: .86rem; margin: .4rem 0; white-space: pre-wrap; }
+        .report-content table { font-size: .84rem; }
+        .report-content table td.num, .report-content table th.num { text-align: right; white-space: nowrap; }
+        @media (max-width: 576px) { .result-value { font-size: 1.2rem; } .section-title { font-size: 1.2rem; } }
+        .report-content { color: #222; }
+        .report-content .formula { break-inside: avoid; page-break-inside: avoid; }
+        .report-content tr { break-inside: avoid; page-break-inside: avoid; }
+        .pdf-sheet { background: #fff; width: 720px; padding: 20px; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; font-size: 13px; }
+        .pdf-sheet *, .pdf-sheet *::before, .pdf-sheet *::after { box-sizing: border-box; }
+        .pdf-sheet .formula { word-break: break-word; overflow-wrap: anywhere; }
+        .pdf-sheet table { width: 100%; border-collapse: collapse; }
+        .pdf-sheet table td, .pdf-sheet table th { border: 1px solid #dde3ea; padding: 3px 5px; }
+        .pdf-sheet h3 { color: #2c3e50; margin-bottom: 16px; }
+        #printArea { display: none; }
+        /* Giriş ekranı */
+        body.locked > .container, body.locked > #printArea, body.locked #sidebar, body.locked .mobile-bar, body.locked #sbBackdrop { display: none !important; }
+        body.print-report > .container, body.print-report #sidebar, body.print-report .mobile-bar { display: none !important; }
+
+        /* ---------- Kenar çubuğu ---------- */
+        :root { --sb-w: 244px; --sb-wc: 72px; }
+        body { padding-left: var(--sb-w); transition: padding-left .2s ease; }
+        body.sb-collapsed { padding-left: var(--sb-wc); }
+        body.locked, body.print-report { padding-left: 0 !important; }
+        #sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sb-w); z-index: 1040; display: flex; flex-direction: column;
+            background: rgba(22, 24, 52, 0.62); backdrop-filter: blur(14px); border-right: 1px solid rgba(255,255,255,0.14);
+            color: #fff; transition: width .2s ease, transform .2s ease; overflow: hidden; }
+        body.sb-collapsed #sidebar { width: var(--sb-wc); }
+        .sb-head { display: flex; align-items: center; gap: 10px; padding: 18px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.12); min-height: 64px; }
+        .sb-logo { width: 38px; height: 38px; border-radius: 10px; background: #fff; color: var(--primary-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.05rem; }
+        .sb-title { font-weight: 700; line-height: 1.15; white-space: nowrap; }
+        .sb-title small { display: block; font-weight: 400; opacity: .7; font-size: .75rem; }
+        .sb-toggle { margin-left: auto; background: rgba(255,255,255,0.12); border: none; color: #fff; width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; }
+        .sb-toggle:hover { background: rgba(255,255,255,0.22); }
+        body.sb-collapsed .sb-toggle i { transform: rotate(180deg); }
+        body.sb-collapsed .sb-head { flex-direction: column; padding: 14px 8px; gap: 8px; }
+        body.sb-collapsed .sb-toggle { margin-left: 0; }
+        .sb-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+        .sb-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 14px; border: none; background: none; color: rgba(255,255,255,0.86);
+            border-radius: 10px; font-weight: 600; font-size: .93rem; text-align: left; white-space: nowrap; }
+        .sb-item i { width: 20px; text-align: center; font-size: 1.02rem; flex-shrink: 0; }
+        .sb-item:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        .sb-item.active { background: #fff; color: var(--primary-color); }
+        .sb-sep { height: 1px; background: rgba(255,255,255,0.12); margin: 8px 6px; }
+        .sb-foot { padding: 12px 14px 16px; border-top: 1px solid rgba(255,255,255,0.12); font-size: .82rem; }
+        .sb-user { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sb-foot .sync-status { display: block; margin-bottom: 8px; white-space: normal; }
+        .sb-foot .btn { border-radius: 20px; width: 100%; }
+        body.sb-collapsed .sb-text, body.sb-collapsed .sb-foot .sync-status, body.sb-collapsed .sb-user span { display: none !important; }
+        body.sb-collapsed .sb-item { justify-content: center; padding: 10px 0; }
+        body.sb-collapsed .sb-user { justify-content: center; }
+        .mobile-bar { display: none; position: sticky; top: 0; z-index: 1030; align-items: center; gap: 12px; padding: 10px 16px;
+            background: rgba(22, 24, 52, 0.55); backdrop-filter: blur(12px); color: #fff; font-weight: 700; }
+        .mobile-bar button { background: rgba(255,255,255,0.15); border: none; color: #fff; width: 38px; height: 38px; border-radius: 10px; }
+        #sbBackdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1035; }
+        @media (max-width: 991.98px) {
+            body, body.sb-collapsed { padding-left: 0; }
+            #sidebar, body.sb-collapsed #sidebar { width: var(--sb-w); transform: translateX(-100%); }
+            body.sb-mobile-open #sidebar { transform: none; }
+            body.sb-mobile-open #sbBackdrop { display: block; }
+            .mobile-bar { display: flex; }
+            body.sb-collapsed .sb-text, body.sb-collapsed .sb-foot .sync-status, body.sb-collapsed .sb-user span { display: revert !important; }
+            body.sb-collapsed .sb-item { justify-content: flex-start; padding: 10px 14px; }
+            body.sb-collapsed .sb-head { flex-direction: row; padding: 18px 16px 14px; }
+            .sb-toggle { display: none; }
+        }
+
+        /* ---------- Dashboard ---------- */
+        .viz-root { --surface-1: #fcfcfb; --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #898781;
+            --grid: #e1e0d9; --baseline: #c3c2b7; --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+            color: var(--text-primary); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+        .dash-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; color: #fff; }
+        .dash-head h2 { font-weight: 700; margin: 0; font-size: 1.6rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.25); }
+        .dash-head .form-select { width: auto; font-weight: 700; }
+        .dash-card { background: var(--surface-1); border-radius: 16px; padding: 18px 20px; box-shadow: 0 8px 28px rgba(31,38,135,0.18); height: 100%; }
+        .dash-card h5 { font-size: 1rem; font-weight: 700; margin: 0 0 2px; color: var(--text-primary); }
+        .dash-card .sub { font-size: .82rem; color: var(--text-secondary); margin-bottom: 10px; }
+        .kpi .lbl { font-size: .8rem; color: var(--text-secondary); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .kpi .val { font-size: 1.55rem; font-weight: 700; color: var(--text-primary); margin: 4px 0 2px; line-height: 1.15; word-break: break-word; }
+        .kpi .note { font-size: .8rem; color: var(--text-muted); }
+        .kpi .note b { color: var(--text-secondary); }
+        .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .8rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        .legend i.line { height: 3px; width: 14px; border-radius: 2px; }
+        .viz svg { width: 100%; height: auto; display: block; overflow: visible; }
+        .viz text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--text-muted); font-size: 11px; }
+        .viz .hit { fill: transparent; cursor: crosshair; }
+        .viz .hit:hover { fill: rgba(11,11,11,0.04); }
+        .viz-table summary { font-size: .8rem; color: var(--text-secondary); cursor: pointer; margin-top: 8px; }
+        .viz-table table { font-size: .78rem; margin-top: 6px; }
+        .viz-table td, .viz-table th { padding: 3px 6px; }
+        .viz-table td.num, .viz-table th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        #vizTip { position: fixed; pointer-events: none; z-index: 3000; display: none; background: #fff; color: #0b0b0b; border: 1px solid rgba(11,11,11,0.10);
+            border-radius: 8px; padding: 8px 10px; font-size: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); min-width: 160px; }
+        #vizTip .t { font-weight: 700; margin-bottom: 4px; }
+        #vizTip .r { display: flex; justify-content: space-between; gap: 14px; }
+        #vizTip .r span:first-child { display: inline-flex; align-items: center; gap: 6px; color: #52514e; }
+        #vizTip i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+        #vizTip .tot { border-top: 1px solid #e1e0d9; margin-top: 4px; padding-top: 4px; font-weight: 700; }
+        .pay-list { list-style: none; padding: 0; margin: 0; }
+        .pay-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #eef0f2; font-size: .86rem; }
+        .pay-list li:last-child { border-bottom: none; }
+        .pay-list .d { color: var(--text-secondary); font-size: .78rem; }
+        .pay-list .a { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .auth-screen { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--gradient-bg); overflow-y: auto; }
+        .auth-screen.hidden { display: none; }
+        .auth-card { width: 100%; max-width: 420px; background: rgba(255,255,255,0.97); border-radius: 20px; padding: 32px 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .auth-card h2 { color: var(--primary-color); font-weight: 700; font-size: 1.45rem; text-align: center; margin-bottom: 4px; }
+        .auth-card .auth-sub { color: #6c7a89; text-align: center; margin-bottom: 22px; }
+        .auth-card .form-control { background: #f5f7fa; border: 1px solid #dde3ea; }
+        .auth-card label { font-size: .88rem; color: #44505c; margin-bottom: 4px; }
+        .auth-link { background: none; border: none; padding: 0; color: var(--secondary-color); font-size: .88rem; text-decoration: underline; cursor: pointer; }
+        .auth-divider { display: flex; align-items: center; gap: 10px; color: #98a4b0; font-size: .85rem; margin: 18px 0; }
+        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #dde3ea; }
+        .btn-google { width: 100%; background: #fff; border: 1px solid #dde3ea; border-radius: 25px; padding: 10px; font-weight: 600; color: #3c4043; }
+        .btn-google:hover { background: #f5f7fa; }
+        .user-bar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; color: #fff; margin-bottom: 8px; font-size: .92rem; }
+        .user-bar .btn { border-radius: 20px; }
+        .ref-panel { background: rgba(0,0,0,0.15); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; color: #fff; }
+        .ref-panel summary { cursor: pointer; font-weight: 600; }
+        .ref-panel .form-label { font-size: .85rem; }
+        .ref-raises { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+        .ref-raises .input-group-text { font-size: .78rem; min-width: 82px; }
+        .ref-note { background: #fff8e6; border-left: 5px solid #f39c12; border-radius: 12px; padding: 14px 16px; color: #3b3b3b; font-size: .92rem; margin-bottom: 14px; }
+        .ref-note h6 { color: #b25d00; font-weight: 700; margin-bottom: 8px; }
+        .ref-note ul { margin: 0; padding-left: 18px; }
+        .ref-note li { margin-bottom: 4px; }
+        .ref-note .gap-neg { color: #c0392b; font-weight: 700; }
+        .ref-note .gap-pos { color: #1e7c45; font-weight: 700; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .nav-pills-custom { display: flex; gap: 6px; background: rgba(255,255,255,0.15); border-radius: 25px; padding: 4px; }
+        .nav-pills-custom button { border: none; background: none; color: #fff; padding: 7px 16px; border-radius: 20px; font-weight: 600; font-size: .92rem; }
+        .nav-pills-custom button.active { background: #fff; color: var(--primary-color); }
+        .sync-status { font-size: .82rem; color: rgba(255,255,255,0.85); white-space: nowrap; }
+        .sync-status.err { color: #ffd2cc; font-weight: 600; }
+        .profile-card { background: rgba(255,255,255,0.97); border-radius: 20px; padding: 24px; box-shadow: 0 8px 32px rgba(31,38,135,0.25); height: 100%; }
+        .profile-card h4 { color: var(--primary-color); font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; }
+        .profile-card label { font-size: .86rem; color: #44505c; margin-bottom: 3px; }
+        .profile-card .form-control { background: #f5f7fa; border: 1px solid #dde3ea; }
+        .avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; flex-shrink: 0; }
+        .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .kv { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid #eef1f5; font-size: .9rem; }
+        .kv span:first-child { color: #6c7a89; }
+        .kv span:last-child { font-weight: 600; color: #2c3e50; text-align: right; word-break: break-word; }
+        .stat-box { background: #f5f7fa; border-radius: 12px; padding: 12px; text-align: center; }
+        .stat-box .v { font-size: 1.3rem; font-weight: 700; color: var(--primary-color); }
+        .stat-box .l { font-size: .8rem; color: #6c7a89; }
+        @media print {
+            body.print-report > *:not(#printArea) { display: none !important; }
+            body.print-report { padding-left: 0 !important; }
+            body.print-report { background: #fff !important; }
+            body.print-report #printArea { display: block !important; padding: 0 8mm; }
+        }
+    </style>
+</head>
+<body class="locked">
+
+<!-- GİRİŞ EKRANI -->
+<div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+        <h2><i class="fas fa-store me-2"></i>Vergi Hesaplama</h2>
+        <p class="auth-sub" id="authSub">Devam etmek için giriş yapın</p>
+
+        <div id="authLoading" class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin me-2"></i>Bağlanıyor…</div>
+
+        <form id="authForm" style="display:none" novalidate>
+            <div class="mb-3">
+                <label for="authEmail">E-posta</label>
+                <input type="email" id="authEmail" class="form-control" autocomplete="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="authPass">Şifre</label>
+                <input type="password" id="authPass" class="form-control" autocomplete="current-password" required minlength="6">
+            </div>
+            <div id="authError" class="alert alert-danger py-2 small" style="display:none"></div>
+            <div id="authInfo" class="alert alert-success py-2 small" style="display:none"></div>
+            <button type="submit" id="authSubmit" class="btn btn-custom w-100">Giriş yap</button>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="small text-muted">Yalnızca kayıtlı üyeler giriş yapabilir.</span>
+                <button type="button" class="auth-link" id="authReset">Şifremi unuttum</button>
+            </div>
+            <div class="auth-divider">veya</div>
+            <button type="button" class="btn-google" id="authGoogle"><i class="fab fa-google me-2"></i>Google ile giriş yap</button>
+        </form>
+    </div>
+</div>
+
+<!-- KENAR ÇUBUĞU -->
+<aside id="sidebar" aria-label="Ana menü">
+    <div class="sb-head">
+        <div class="sb-logo"><i class="fas fa-store"></i></div>
+        <div class="sb-title sb-text">Vergi Hesaplama<small>Şahıs firması</small></div>
+        <button class="sb-toggle" id="sbToggle" title="Menüyü daralt / genişlet" aria-label="Menüyü daralt veya genişlet"><i class="fas fa-angles-left"></i></button>
+    </div>
+    <nav class="sb-nav">
+        <button class="sb-item" data-view="dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i><span class="sb-text">Dashboard</span></button>
+        <button class="sb-item" data-view="calc" title="Hesaplayıcı"><i class="fas fa-calculator"></i><span class="sb-text">Hesaplayıcı</span></button>
+        <button class="sb-item" data-view="offer" title="Teklif hesapla"><i class="fas fa-hand-holding-usd"></i><span class="sb-text">Teklif hesapla</span></button>
+        <button class="sb-item" data-view="payments" title="Ödeme takvimi"><i class="fas fa-calendar-check"></i><span class="sb-text">Ödeme takvimi</span></button>
+        <div class="sb-sep"></div>
+        <button class="sb-item" data-view="profile" title="Profil"><i class="fas fa-user"></i><span class="sb-text">Profil</span></button>
+    </nav>
+    <div class="sb-foot">
+        <span class="sync-status" id="syncStatus"></span>
+        <div class="sb-user" title=""><i class="fas fa-user-circle"></i><span id="userEmail"></span></div>
+        <button class="btn btn-sm btn-light" id="logoutBtn" title="Çıkış"><i class="fas fa-sign-out-alt"></i><span class="sb-text ms-1">Çıkış</span></button>
+    </div>
+</aside>
+<div id="sbBackdrop"></div>
+<div class="mobile-bar">
+    <button id="sbOpen" aria-label="Menüyü aç"><i class="fas fa-bars"></i></button>
+    <span id="mobileTitle">Dashboard</span>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container py-4 viz-root" id="dashboardView" style="display:none">
+    <div class="dash-head">
+        <h2><i class="fas fa-chart-pie me-2"></i>Dashboard</h2>
+        <div class="d-flex align-items-center gap-2">
+            <label for="dashYear" class="mb-0 small">Vergi yılı</label>
+            <select id="dashYear" class="form-select form-select-sm"></select>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3" id="kpiRow"></div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-8">
+            <div class="dash-card">
+                <h5 id="chA_title">Aylık ciro nereye gidiyor?</h5>
+                <div class="sub">Her ayın cirosu: eline geçen net, ayırman gereken gelir vergisi ve Bağ-Kur + giderler</div>
+                <div class="legend" id="chA_legend"></div>
+                <div class="viz" id="chA"></div>
+                <details class="viz-table"><summary>Tabloyu göster</summary><div id="chA_table"></div></details>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="dash-card">
+                <h5>Yaklaşan ödemeler</h5>
+                <div class="sub" id="payNextSub"></div>
+                <ul class="pay-list" id="payNext"></ul>
+                <button class="btn btn-sm btn-outline-secondary mt-2" style="border-radius:20px" onclick="showView('payments')">Tüm takvim <i class="fas fa-arrow-right ms-1"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <div class="dash-card">
+                <h5>Sözleşme bedeliniz ve TÜBİTAK referansı</h5>
+                <div class="sub" id="chB_sub">Aylık brüt (KDV hariç)</div>
+                <div class="legend" id="chB_legend"></div>
+                <div class="viz" id="chB"></div>
+                <details class="viz-table"><summary>Tabloyu göster</summary><div id="chB_table"></div></details>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="dash-card">
+                <h5>Yıllara göre vergi ve prim ödemeleri</h5>
+                <div class="sub">Ödendiği yıla göre (önceki yıldan sarkanlar dahil)</div>
+                <div class="legend" id="chC_legend"></div>
+                <div class="viz" id="chC"></div>
+                <details class="viz-table"><summary>Tabloyu göster</summary><div id="chC_table"></div></details>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="vizTip"></div>
+
+<div class="container py-4" id="appView">
+
+    <div class="text-center mb-4">
+        <h1 class="header-title display-6"><i class="fas fa-store me-2"></i>Şahıs Firması Vergi Hesaplama</h1>
+        <p class="text-white-50 fs-5 mb-0">Çok yıllı sözleşmeler · gelir vergisi dilimleri · geçici vergi · KDV tevkifatı · Bağ-Kur</p>
+    </div>
+
+    <!-- AYARLAR + SÖZLEŞME -->
+    <div class="row">
+        <div class="col-lg-5 mb-4">
+            <div class="glass-card p-4 h-100">
+                <h3 class="section-title"><i class="fas fa-sliders-h text-warning me-2"></i>Genel Ayarlar</h3>
+
+                <div class="mb-3">
+                    <label class="form-label">Satışlardaki KDV oranı</label>
+                    <select id="incomeKdv" class="form-select">
+                        <option value="0.20">%20</option>
+                        <option value="0.10">%10</option>
+                        <option value="0.01">%1</option>
+                        <option value="0">KDV yok / istisna</option>
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-1">
+                    <div class="col-7">
+                        <label class="form-label">Bağ-Kur durumu</label>
+                        <select id="bagkurType" class="form-select">
+                            <option value="indirimli">5 puan indirimli</option>
+                            <option value="standart">Standart (indirimsiz)</option>
+                            <option value="yok">Ödemiyorum (4/a'lıyım vb.)</option>
+                        </select>
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">PEK (asgari ücretin katı)</label>
+                        <input type="number" id="bagkurMult" class="form-control" value="1" min="1" max="9" step="0.1">
+                    </div>
+                </div>
+                <div class="form-text mb-3" id="bagkurHint">1 = en düşük prim (asgari ücret üzerinden).</div>
+
+                <div class="mb-3">
+                    <label class="form-label">Sözleşme dışı sabit aylık gelir (varsa, KDV hariç)</label>
+                    <input type="number" id="otherIncome" class="form-control" placeholder="0" min="0">
+                </div>
+
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" id="youngEntrepreneur">
+                    <label class="form-check-label" for="youngEntrepreneur">Genç girişimci kazanç istisnası</label>
+                </div>
+                <div class="form-text mb-3">2025: 330.000 TL, 2026: 400.000 TL. İşe başlarken 18–29 yaş, ilk 3 yıl.</div>
+
+                <label class="form-label">Henüz açıklanmamış yıllar için tahmini yıllık artış</label>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Dilimler %</span>
+                            <input type="number" id="futureBr" class="form-control" value="28" min="0" max="100" step="0.1">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Asgari ücret %</span>
+                            <input type="number" id="futureMw" class="form-control" value="25" min="0" max="100" step="0.1">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-text">2027 ve sonrası için dilimler (yeniden değerleme oranı) ve Bağ-Kur'un dayandığı asgari ücret bu oranlarla artırılır.</div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 mb-4">
+            <div class="glass-card p-4 h-100">
+                <h3 class="section-title"><i class="fas fa-file-signature text-success me-2"></i>Sözleşme Ekle</h3>
+                <div class="row g-2">
+                    <div class="col-md-7">
+                        <label class="form-label">Müşteri / sözleşme adı</label>
+                        <input type="text" id="cName" class="form-control" placeholder="Örn. ABC Ltd. hizmet sözleşmesi">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Aylık bedel (TL, KDV hariç)</label>
+                        <input type="number" id="cAmount" class="form-control" placeholder="Örn. 340000" min="0">
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <label class="form-label">Başlangıç ayı</label>
+                        <select id="cMonth" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <label class="form-label">Başlangıç yılı</label>
+                        <select id="cYear" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Süre (ay)</label>
+                        <input type="number" id="cDuration" class="form-control" value="6" min="1" max="36">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">KDV tevkifatı (alıcı sorumluysa)</label>
+                        <select id="cTevkifat" class="form-select"></select>
+                    </div>
+                </div>
+                <p class="hint mt-2 mb-3">Her yenilemeyi ayrı bir sözleşme olarak ekleyin (örn. Ocak 2025 – 2 ay, Mart 2025 – 6 ay, Eylül 2025 – 6 ay …). Her vergi yılı kendi dilimleriyle hesaplanır; geçmiş yılların sonraki yıla sarkan ödemeleri (yıllık vergi taksitleri, 4. dönem geçici vergi, Aralık KDV'si) ayrıca etiketlenir.</p>
+                <button class="btn btn-custom w-100" onclick="addContract()"><i class="fas fa-plus me-2"></i>Sözleşme Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SÖZLEŞME LİSTESİ -->
+    <div class="glass-card p-4 mb-4">
+        <h3 class="section-title"><i class="fas fa-handshake text-info me-2"></i>Sözleşmeler</h3>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                <tr>
+                    <th>Sözleşme</th><th class="num">Aylık bedel</th><th>Dönem</th><th>Süre</th><th>Tevkifat</th>
+                    <th>Yıllara dağılım</th><th>TÜBİTAK karşılığı</th><th class="num">Toplam bedel</th><th></th>
+                </tr>
+                </thead>
+                <tbody id="contractBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- NET'TEN BRÜT TEKLİF -->
+    <div class="glass-card p-4 mb-4" id="offerCard">
+        <h3 class="section-title"><i class="fas fa-hand-holding-usd text-warning me-2"></i>Net'ten Brüt Teklif Hesapla</h3>
+        <p class="hint mb-3">Eline geçmesini istediğin aylık neti gir; sistem Bağ-Kur, giderler ve artan oranlı gelir vergisini hesaba katarak müşteriye vermen gereken brüt (KDV hariç) aylık teklifi bulur. "Bir sonraki teklifimi tahmin et" ise TÜBİTAK brüt ücret tablosuna göre bir sonraki sözleşmen için tahmini teklifi hazırlar ve aynı brütle bir TÜBİTAK çalışanının eline geçen netle karşılaştırır.</p>
+
+        <details class="ref-panel" id="refPanel">
+            <summary><i class="fas fa-landmark me-2"></i>TÜBİTAK referansı: <span id="refSummary">AG-3 / kademe 6</span></summary>
+            <div class="row g-2 mt-2">
+                <div class="col-md-4">
+                    <label class="form-label">Derece (unvan)</label>
+                    <select id="refDerece" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-md-2 col-4">
+                    <label class="form-label">Kademe</label>
+                    <select id="refKademe" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-md-3 col-4">
+                    <label class="form-label">Bu seviyeye geçiş ayı</label>
+                    <select id="refMonth" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-md-3 col-4">
+                    <label class="form-label">Yılı</label>
+                    <select id="refYear" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tablodaki 2025 brüt rakamlarının dönemi</label>
+                    <select id="refTable" class="form-select form-select-sm">
+                        <option value="H2">Temmuz–Aralık 2025 (Temmuz zammı dahil)</option>
+                        <option value="H1">Ocak–Haziran 2025 (Temmuz zammı eklenmeli)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" id="refProgress" checked>
+                        <label class="form-check-label small" for="refProgress">Her 12 ayda bir kademe ilerle (TÜBİTAK'ta olumlu sicille yıllık kademe ilerlemesi)</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label mt-1">Dönemsel ücret artışları (%) — memur zammı varsayımı</label>
+                    <div class="ref-raises" id="refRaises"></div>
+                    <div class="form-text">Resmi olanlar açıklanmış memur zamlarıdır; tahmini olanlar toplu sözleşme oranı + beklenen enflasyon farkıdır. Açıklandıkça güncelleyin.</div>
+                </div>
+                <div class="col-12"><hr class="my-2" style="border-color:rgba(255,255,255,.3)"></div>
+                <div class="col-12"><label class="form-label mb-1"><i class="fas fa-search me-1"></i>Bir brüt tutarın TÜBİTAK karşılığını bul</label></div>
+                <div class="col-md-4"><input type="number" id="eqAmount" class="form-control form-control-sm" placeholder="Brüt tutar, örn. 340000"></div>
+                <div class="col-md-3 col-6"><select id="eqMonth" class="form-select form-select-sm"></select></div>
+                <div class="col-md-2 col-6"><select id="eqYear" class="form-select form-select-sm"></select></div>
+                <div class="col-md-3"><button type="button" class="btn btn-light btn-sm w-100" onclick="runEqQuery()">Karşılığını bul</button></div>
+                <div class="col-12"><div id="eqResult" class="ref-note mt-2 mb-0" style="display:none"></div></div>
+            </div>
+        </details>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <label class="form-label">Teklif / müşteri adı</label>
+                <input type="text" id="oName" class="form-control" placeholder="Örn. Mart 2027 yenileme">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">İstenen aylık net (TL)</label>
+                <input type="number" id="oNet" class="form-control" placeholder="Örn. 250000" min="0">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">KDV tevkifatı</label>
+                <select id="oTevkifat" class="form-select"></select>
+            </div>
+            <div class="col-md-4 col-6">
+                <label class="form-label">Başlangıç ayı</label>
+                <select id="oMonth" class="form-select"></select>
+            </div>
+            <div class="col-md-4 col-6">
+                <label class="form-label">Başlangıç yılı</label>
+                <select id="oYear" class="form-select"></select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Süre (ay)</label>
+                <input type="number" id="oDuration" class="form-control" value="6" min="1" max="36">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Hesaplama yöntemi</label>
+                <select id="oMode" class="form-select">
+                    <option value="incremental">Mevcut sözleşmelerimle birlikte (önerilen)</option>
+                    <option value="standalone">Bu sözleşme tek gelirim</option>
+                </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="oReplace" checked>
+                    <label class="form-check-label" for="oReplace">Aynı aylara denk gelen mevcut sözleşmeleri hesaba katma (yenileme teklifi)</label>
+                </div>
+            </div>
+        </div>
+        <div id="oError" class="alert alert-danger py-2 small mt-3" style="display:none"></div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-6"><button class="btn btn-report w-100" onclick="predictNextOffer()"><i class="fas fa-magic me-2"></i>Bir sonraki teklifimi tahmin et</button></div>
+            <div class="col-md-6"><button class="btn btn-custom w-100" onclick="calcOffer()"><i class="fas fa-calculator me-2"></i>Brüt teklifi hesapla</button></div>
+        </div>
+
+        <div id="offerResult" style="display:none" class="mt-4">
+            <div class="ref-note" id="oRefNote" style="display:none"></div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-4 col-6">
+                    <div class="result-card p-3 text-center">
+                        <h6>Brüt aylık teklif (KDV hariç)</h6>
+                        <div class="result-value" id="oGross">—</div>
+                        <div class="result-sub" id="oGrossSub"></div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="result-card p-3 text-center">
+                        <h6>Önerilen yuvarlanmış teklif</h6>
+                        <div class="result-value" id="oRounded">—</div>
+                        <div class="result-sub" id="oRoundedSub"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="result-card p-3 text-center">
+                        <h6>Brüt / net katsayısı</h6>
+                        <div class="result-value" id="oFactor">—</div>
+                        <div class="result-sub" id="oFactorSub"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead><tr><th>Aylık ortalama döküm</th><th class="num">Tutar</th></tr></thead>
+                            <tbody id="oBreakdown"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead><tr><th>Aylık fatura (önerilen teklifle)</th><th class="num">Tutar</th></tr></thead>
+                            <tbody id="oInvoice"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <p class="hint mt-2 mb-3" id="oNote"></p>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-report" onclick="openOfferReport()"><i class="fas fa-file-alt me-2"></i>Teklif raporunu göster</button>
+                <button class="btn btn-light" style="border-radius:25px" onclick="addOfferAsContract()"><i class="fas fa-plus me-2"></i>Sözleşme olarak ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GİDERLER -->
+    <div class="row">
+        <div class="col-lg-5 mb-4">
+            <div class="glass-card p-4 h-100">
+                <h3 class="section-title"><i class="fas fa-receipt text-danger me-2"></i>İşletme Gideri Ekle</h3>
+                <div class="mb-2">
+                    <label class="form-label">Gider adı</label>
+                    <input type="text" id="expenseName" class="form-control" placeholder="Örn. Ofis kirası, muhasebe, yakıt">
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-7">
+                        <label class="form-label">Tutar (TL, KDV hariç)</label>
+                        <input type="number" id="expenseAmount" class="form-control" placeholder="Tutar" min="0">
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">Geçerli yıl</label>
+                        <select id="expenseYear" class="form-select"></select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Periyot</label>
+                        <select id="expensePeriod" class="form-select">
+                            <option value="monthly">Aylık</option>
+                            <option value="quarterly">3 Aylık</option>
+                            <option value="yearly">Yıllık</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">KDV'si</label>
+                        <select id="expenseKdv" class="form-select">
+                            <option value="0.20">%20</option>
+                            <option value="0.10">%10</option>
+                            <option value="0.01">%1</option>
+                            <option value="0">KDV yok</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="hint mb-3">Yalnızca işle ilgili, belgeli giderler kazançtan düşülür. Bağ-Kur'u buraya eklemeyin.</p>
+                <button class="btn btn-custom w-100" onclick="addExpense()"><i class="fas fa-plus me-2"></i>Gider Ekle</button>
+            </div>
+        </div>
+        <div class="col-lg-7 mb-4">
+            <div class="glass-card p-4 h-100">
+                <h3 class="section-title"><i class="fas fa-list text-info me-2"></i>Gider Listesi</h3>
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead><tr><th>Gider</th><th class="num">Tutar</th><th>Periyot</th><th>Yıl</th><th>KDV</th><th class="num">Aylık</th><th></th></tr></thead>
+                        <tbody id="expenseTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YILLARA GÖRE ÖDEMELER -->
+    <div class="glass-card p-4 mb-4">
+        <h3 class="section-title"><i class="fas fa-coins text-warning me-2"></i>Yıllara Göre Ödemeler</h3>
+        <div class="table-responsive mb-2">
+            <table class="table table-custom">
+                <thead>
+                <tr>
+                    <th>Ödeme yılı</th><th class="num">Önceki yıllardan sarkan</th><th class="num">O yılın vergileri</th>
+                    <th class="num">Toplam</th><th class="num">Ödendi</th><th class="num">Kalan</th>
+                </tr>
+                </thead>
+                <tbody id="cashSummaryBody"></tbody>
+            </table>
+        </div>
+        <p class="hint mb-0">"Önceki yıllardan sarkan": geçen yılın yıllık gelir vergisi taksitleri (Mart–Temmuz), 4. dönem geçici vergisi (Şubat) ve Aralık KDV'si (Ocak). Ödendi/Kalan bugünün tarihine göre ayrılır.</p>
+    </div>
+
+    <!-- YIL SEÇİMİ -->
+    <div class="glass-card p-3 mb-3">
+        <div class="year-bar">
+            <label for="yearSel" class="text-white fw-bold mb-0"><i class="fas fa-calendar me-2"></i>Detayını gördüğünüz vergi yılı:</label>
+            <select id="yearSel" class="form-select"></select>
+            <span id="estBadge" class="est-badge" style="display:none">Tahmini: bu yılın dilimleri ve Bağ-Kur tutarı henüz açıklanmadı; 2026 değerleri Genel Ayarlar'daki tahmini artış oranlarıyla büyütüldü</span>
+        </div>
+    </div>
+
+    <!-- SONUÇ KARTLARI -->
+    <div class="row g-3 mb-3">
+        <div class="col-lg-3 col-6">
+            <div class="result-card p-3 text-center">
+                <i class="fas fa-calendar fa-2x text-warning mb-2"></i>
+                <h6><span class="selYear"></span> Yıllık Net Kazanç</h6>
+                <div class="result-value" id="cardYearNet">0 TL</div>
+                <div class="result-sub" id="cardYearNetSub">&nbsp;</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="result-card p-3 text-center">
+                <i class="fas fa-calendar-alt fa-2x text-primary mb-2"></i>
+                <h6>Ortalama Aylık Net</h6>
+                <div class="result-value" id="cardMonthNet">0 TL</div>
+                <div class="result-sub" id="cardMonthNetSub">&nbsp;</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="result-card p-3 text-center">
+                <i class="fas fa-percentage fa-2x text-danger mb-2"></i>
+                <h6><span class="selYear"></span> Gelir Vergisi</h6>
+                <div class="result-value" id="cardTax">0 TL</div>
+                <div class="result-sub" id="cardTaxSub">&nbsp;</div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="result-card p-3 text-center">
+                <i class="fas fa-layer-group fa-2x text-info mb-2"></i>
+                <h6>Ulaşılan En Üst Dilim</h6>
+                <div class="result-value" id="cardBracket">—</div>
+                <div class="result-sub" id="cardBracketSub">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <button class="btn btn-report" onclick="openReport()">
+            <i class="fas fa-file-alt me-2"></i>Hesap Raporunu Göster — sonuç nasıl bulundu?
+        </button>
+    </div>
+
+    <!-- AYLIK TABLO -->
+    <div class="glass-card p-4 mb-4">
+        <h3 class="section-title"><i class="fas fa-table text-warning me-2"></i><span class="selYear"></span> Aylık Gelir ve Vergi Tablosu</h3>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                <tr>
+                    <th>Ay</th><th class="num">Ciro</th><th class="num">Gider + Bağ-Kur</th><th class="num">Aylık kâr</th>
+                    <th class="num">Birikimli matrah</th><th>Dilim</th><th class="num">Vergi karşılığı</th><th class="num">Aylık net</th>
+                </tr>
+                </thead>
+                <tbody id="monthBody"></tbody>
+            </table>
+        </div>
+        <p class="hint mt-2 mb-0" id="bracketNote"></p>
+    </div>
+
+    <!-- VERGİ DÖNEMLERİ -->
+    <div class="glass-card p-4 mb-4">
+        <h3 class="section-title"><i class="fas fa-clock text-warning me-2"></i><span class="selYear"></span> Vergi Dönemleri</h3>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                <tr>
+                    <th>Dönem</th><th class="num">Dönem cirosu</th><th class="num">Dönem kârı</th>
+                    <th class="num">Bağ-Kur</th><th class="num">KDV</th><th class="num">Geçici vergi</th><th>GV son gün</th><th class="num">Dönem toplamı</th>
+                </tr>
+                </thead>
+                <tbody id="quarterBody"></tbody>
+            </table>
+        </div>
+        <p class="hint mt-2 mb-0">Bağ-Kur ve KDV o çeyreğin aylarına aittir. Yıllık beyanda kalan vergi bir sonraki yıl Mart ve Temmuz'da ödenir.</p>
+    </div>
+
+    <!-- KDV VE TEVKİFAT -->
+    <div class="glass-card p-4 mb-4">
+        <h3 class="section-title"><i class="fas fa-receipt text-success me-2"></i><span class="selYear"></span> KDV ve Tevkifat</h3>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                <tr>
+                    <th>Ay</th><th class="num">Hesaplanan KDV</th><th class="num">Alıcının tevkif ettiği</th><th class="num">Size ödenen KDV</th>
+                    <th class="num">Gider KDV'si</th><th class="num">Ödenecek KDV</th><th class="num">Devreden</th><th class="num">Müşteriden tahsilat</th>
+                </tr>
+                </thead>
+                <tbody id="kdvBody"></tbody>
+            </table>
+        </div>
+        <p class="hint mt-2 mb-0">Tevkif edilen KDV'yi alıcı doğrudan vergi dairesine öder. Devreden KDV bir sonraki aya, yıl sonunda da bir sonraki yıla aktarılır. KDV kârı etkilemez.</p>
+    </div>
+
+    <!-- ÖDEME TAKVİMİ -->
+    <div class="glass-card p-4 mb-4" id="calendarCard">
+        <div class="year-bar mb-3">
+            <h3 class="section-title mb-0"><i class="fas fa-calendar-check text-success me-2"></i>Ödeme Takvimi</h3>
+            <select id="calYear" class="form-select"></select>
+        </div>
+        <div class="table-responsive mb-3">
+            <table class="table table-custom">
+                <thead><tr><th>Kalem</th><th>Ait olduğu yıl</th><th class="num">Ödendi</th><th class="num">Kalan</th><th class="num">Toplam</th></tr></thead>
+                <tbody id="calBreakdownBody"></tbody>
+            </table>
+        </div>
+        <div class="table-responsive" style="max-height: 560px; overflow-y: auto;">
+            <table class="table table-custom">
+                <thead><tr><th>Son gün</th><th>Ödeme</th><th>Ait olduğu dönem</th><th class="num">Tutar</th><th>Durum</th></tr></thead>
+                <tbody id="calendarBody"></tbody>
+            </table>
+        </div>
+        <p class="hint mt-2 mb-0">Mor çizgili satırlar önceki yıldan sarkan ödemelerdir. Son gün hafta sonuna denk gelirse pazartesiye kaydırılmıştır; resmi tatiller ayrıca dikkate alınmaz.</p>
+    </div>
+
+    <div class="notice p-4 mb-4">
+        <h6 class="text-white"><i class="fas fa-info-circle me-2"></i>Hesaplama varsayımları</h6>
+        <ul class="mb-0">
+            <li>Gerçek usulde vergilendirilen şahıs firması. Her yıl kendi gelir vergisi tarifesiyle ayrı hesaplanır (2025 ve 2026 resmi; sonraki yıllar 2026 değerlerinin Genel Ayarlar'daki tahmini artışla büyütülmesiyle tahmini).</li>
+            <li>Gelir, faturalandığı ayın kazancıdır. Bağ-Kur ve giderler ilk sözleşmenin başladığı aydan son sözleşmenin bittiği aya kadar işletilir.</li>
+            <li>Geçici vergi sabit %15 ile hesaplanır; dilimler yıllık beyanda devreye girer. "Vergi karşılığı" yıllık vergiyi aylara dağıtır.</li>
+            <li>Ödenen tutarlar gerçek tahakkuklar değil, girdilere göre hesaplanan tahminlerdir. Amortisman, sağlık/eğitim harcaması, kira stopajı, damga vergisi dahil değildir. Kesin hesap için mali müşavirinize danışın.</li>
+        </ul>
+    </div>
+</div>
+
+<!-- PROFİL SAYFASI -->
+<div class="container py-4" id="profileView" style="display:none">
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="profile-card">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="avatar" id="pAvatar">?</div>
+                    <div>
+                        <div class="fw-bold fs-5" id="pDisplayName">—</div>
+                        <div class="text-muted small" id="pEmail"></div>
+                    </div>
+                </div>
+                <h4 class="mt-2"><i class="fas fa-id-badge me-2"></i>Hesap bilgileri</h4>
+                <div class="kv"><span>Giriş yöntemi</span><span id="pProvider">—</span></div>
+                <div class="kv"><span>Hesap oluşturma</span><span id="pCreated">—</span></div>
+                <div class="kv"><span>Son giriş</span><span id="pLastLogin">—</span></div>
+                <div class="kv"><span>Son buluta kayıt</span><span id="pLastSync">—</span></div>
+                <div id="pAccountMsg" class="alert py-2 small mt-3" style="display:none"></div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <button class="btn btn-outline-primary btn-sm" id="pResetPass" style="display:none"><i class="fas fa-key me-1"></i>Şifre değiştirme e-postası gönder</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="document.getElementById('logoutBtn').click()"><i class="fas fa-sign-out-alt me-1"></i>Çıkış yap</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="profile-card">
+                <h4><i class="fas fa-building me-2"></i>Firma bilgileri</h4>
+                <div class="row g-2">
+                    <div class="col-md-6"><label for="pName">Ad soyad</label><input id="pName" class="form-control" autocomplete="name"></div>
+                    <div class="col-md-6"><label for="pPhone">Telefon</label><input id="pPhone" class="form-control" type="tel" autocomplete="tel"></div>
+                    <div class="col-12"><label for="pCompany">Firma unvanı</label><input id="pCompany" class="form-control" placeholder="Örn. Ad Soyad – Danışmanlık Hizmetleri"></div>
+                    <div class="col-md-6"><label for="pTaxNo">Vergi kimlik no / TCKN</label><input id="pTaxNo" class="form-control" inputmode="numeric" maxlength="11"></div>
+                    <div class="col-md-6"><label for="pTaxOffice">Vergi dairesi</label><input id="pTaxOffice" class="form-control"></div>
+                    <div class="col-12"><label for="pActivity">Faaliyet konusu</label><input id="pActivity" class="form-control" placeholder="Örn. Bilişim danışmanlığı"></div>
+                    <div class="col-12"><label for="pAddress">Adres</label><textarea id="pAddress" class="form-control" rows="2"></textarea></div>
+                </div>
+                <div id="pProfileMsg" class="alert py-2 small mt-3" style="display:none"></div>
+                <button class="btn btn-custom mt-3" id="pSaveProfile" onclick="saveProfile()"><i class="fas fa-save me-2"></i>Profili kaydet</button>
+                <p class="text-muted small mt-2 mb-0">Firma bilgileri hesap raporunun başlığında da görünür.</p>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="profile-card">
+                <h4><i class="fas fa-cloud me-2"></i>Kayıtlı verilerim</h4>
+                <div class="row g-2 mb-3">
+                    <div class="col-6 col-md-3"><div class="stat-box"><div class="v" id="pStatContracts">0</div><div class="l">Sözleşme</div></div></div>
+                    <div class="col-6 col-md-3"><div class="stat-box"><div class="v" id="pStatExpenses">0</div><div class="l">Gider</div></div></div>
+                    <div class="col-6 col-md-3"><div class="stat-box"><div class="v" id="pStatYears">—</div><div class="l">Hesaplanan yıllar</div></div></div>
+                    <div class="col-6 col-md-3"><div class="stat-box"><div class="v" id="pStatTotal">0</div><div class="l">Toplam sözleşme bedeli</div></div></div>
+                </div>
+                <div class="table-responsive mb-3">
+                    <table class="table table-custom">
+                        <thead><tr><th>Sözleşme</th><th>Dönem</th><th class="num">Aylık bedel</th><th>Tevkifat</th></tr></thead>
+                        <tbody id="pContracts"></tbody>
+                    </table>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-success btn-sm" onclick="cloudSaveNow()"><i class="fas fa-cloud-upload-alt me-1"></i>Şimdi buluta kaydet</button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="exportJson()"><i class="fas fa-download me-1"></i>Verilerimi indir (JSON)</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="clearMyData()"><i class="fas fa-trash-alt me-1"></i>Sözleşme ve giderlerimi sil</button>
+                </div>
+                <p class="text-muted small mt-2 mb-0">Verileriniz her değişiklikten sonra otomatik olarak Firebase Firestore'a kaydedilir ve hangi cihazdan giriş yaparsanız yapın aynı veriler yüklenir.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RAPOR MODALI -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i><span id="reportTitleText">Hesap Raporu</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body report-content" id="reportBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="pdfBtn" onclick="downloadPdf()"><i class="fas fa-file-pdf me-2"></i>PDF indir</button>
+                <button class="btn btn-outline-secondary" onclick="printReport()"><i class="fas fa-print me-2"></i>Yazdır</button>
+                <button class="btn btn-primary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="printArea" class="report-content"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // ===== YIL PARAMETRELERİ (yeni yıl açıklanınca buraya ekleyin) =====
+    const CURRENT_YEAR = 2026;
+    const YEAR_PARAMS = {
+        2025: {
+            brackets: [                       // GVK 103 – ücret dışı gelirler 2025
+                { limit: 158000,   rate: 0.15 },
+                { limit: 330000,   rate: 0.20 },
+                { limit: 800000,   rate: 0.27 },
+                { limit: 4300000,  rate: 0.35 },
+                { limit: Infinity, rate: 0.40 }
+            ],
+            minWage: 26005.50, maxMult: 7.5,  // Bağ-Kur PEK alt sınırı ve tavan katsayısı
+            bagkurRates: { indirimli: 0.2975, standart: 0.3475 },
+            youngExemption: 330000,
+            tevkifatLimit: 9900,
+            wageBrackets: [                   // GVK 103 – ücret gelirleri 2025
+                { limit: 158000,   rate: 0.15 },
+                { limit: 330000,   rate: 0.20 },
+                { limit: 1200000,  rate: 0.27 },
+                { limit: 4300000,  rate: 0.35 },
+                { limit: Infinity, rate: 0.40 }
+            ]
+        },
+        2026: {
+            brackets: [                       // GVK 103 – ücret dışı gelirler 2026
+                { limit: 190000,   rate: 0.15 },
+                { limit: 400000,   rate: 0.20 },
+                { limit: 1000000,  rate: 0.27 },
+                { limit: 5300000,  rate: 0.35 },
+                { limit: Infinity, rate: 0.40 }
+            ],
+            minWage: 33030, maxMult: 9,
+            bagkurRates: { indirimli: 0.3075, standart: 0.3575 },
+            youngExemption: 400000,
+            tevkifatLimit: 12000,
+            wageBrackets: [                   // GVK 103 – ücret gelirleri 2026
+                { limit: 190000,   rate: 0.15 },
+                { limit: 400000,   rate: 0.20 },
+                { limit: 1500000,  rate: 0.27 },
+                { limit: 5300000,  rate: 0.35 },
+                { limit: Infinity, rate: 0.40 }
+            ]
+        }
+    };
+    const PROVISIONAL_RATE = 0.15;
+    const KNOWN_YEARS = Object.keys(YEAR_PARAMS).map(Number);
+    // Yılın parametreleri (bilinmeyen yıl → en son bilinen yılın değerleri, "tahmini")
+    function futureRates() {
+        const v = id => { const el = document.getElementById(id); const x = el ? parseFloat(el.value) : NaN; return isFinite(x) ? Math.max(0, x) / 100 : 0; };
+        return { br: v('futureBr'), mw: v('futureMw') };
+    }
+    function yp(y) {
+        const known = YEAR_PARAMS[y];
+        const lastKnown = Math.max(...KNOWN_YEARS);
+        let base = known || YEAR_PARAMS[y < Math.min(...KNOWN_YEARS) ? Math.min(...KNOWN_YEARS) : lastKnown];
+        if (!known && y > lastKnown) {
+            // Açıklanmamış yıl: son bilinen yılın değerlerini tahmini oranlarla büyüt
+            const g = futureRates(), n = y - lastKnown;
+            const fb = Math.pow(1 + g.br, n), fm = Math.pow(1 + g.mw, n);
+            base = {
+                ...base,
+                brackets: base.brackets.map(b => ({ limit: b.limit === Infinity ? Infinity : b.limit * fb, rate: b.rate })),
+                wageBrackets: base.wageBrackets.map(b => ({ limit: b.limit === Infinity ? Infinity : b.limit * fb, rate: b.rate })),
+                minWage: base.minWage * fm,
+                youngExemption: base.youngExemption * fb,
+                tevkifatLimit: base.tevkifatLimit * fb
+            };
+        }
+        return {
+            ...base, year: y, estimated: !known,
+            gvDeadlines: [due(y, 4, 17), due(y, 7, 17), due(y, 10, 17), due(y + 1, 1, 17)],
+            annualDeadlines: [due(y + 1, 2, 31), due(y + 1, 6, 31)]
+        };
+    }
+    // Son ödeme günü; hafta sonuna denk gelirse pazartesiye kayar
+    function due(y, mIdx, d) {
+        const dt = new Date(y, mIdx, d);
+        const w = dt.getDay();
+        if (w === 6) dt.setDate(dt.getDate() + 2); else if (w === 0) dt.setDate(dt.getDate() + 1);
+        return dt;
+    }
+
+    // KDV Genel Uygulama Tebliği – kısmi tevkifat oranları (sık kullanılanlar)
+    const TEVKIFAT = [
+        { v: 0,   label: 'Tevkifat yok' },
+        { v: 0.2, label: '2/10 – Karayolu yük taşımacılığı' },
+        { v: 0.3, label: '3/10 – Ticari reklam hizmetleri' },
+        { v: 0.4, label: '4/10 – Yapım işleri, mühendislik-mimarlık, etüt-proje' },
+        { v: 0.5, label: '5/10 – Yemek servisi, organizasyon, servis taşımacılığı' },
+        { v: 0.7, label: '7/10 – Bakım-onarım, basım-yayın hizmetleri' },
+        { v: 0.9, label: '9/10 – Danışmanlık, temizlik, güvenlik, işgücü temini' }
+    ];
+    const tevText = v => Math.round(v * 10) + '/10';
+    const MONTHS = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    const MONTHS_LOC = ["Ocak'ta","Şubat'ta","Mart'ta","Nisan'da","Mayıs'ta","Haziran'da","Temmuz'da","Ağustos'ta","Eylül'de","Ekim'de","Kasım'da","Aralık'ta"];
+    const Q_LABEL = ['1. dönem (Oca–Mar)', '2. dönem (Nis–Haz)', '3. dönem (Tem–Eyl)', '4. dönem (Eki–Ara)'];
+    const TYPE_LABEL = { yillik: 'Yıllık gelir vergisi', gv: 'Geçici vergi', kdv: 'KDV', bagkur: 'Bağ-Kur' };
+
+    let contracts = [];
+    let expenses = [];
+    let ALL = null;      // tüm yılların hesabı
+    let LAST = null;     // seçili yılın hesabı (rapor için)
+    let userYear = null; // kullanıcının seçtiği vergi yılı
+
+    // ---------- Yardımcılar ----------
+    const fc = n => (Math.abs(n) < 0.005 ? 0 : n).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TL';
+    const fn = n => n.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+    const pct = n => '%' + (n * 100).toLocaleString('tr-TR', { maximumFractionDigits: 2 });
+    const num = id => parseFloat(document.getElementById(id).value) || 0;
+    const fd = d => d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const rateBadge = r => `<span class="rate-badge r${Math.round(r * 100)}">${r ? '%' + Math.round(r * 100) : '—'}</span>`;
+    const ym = (y, m) => `${MONTHS[m - 1]} ${y}`;
+    // "2025'ten", "2026'dan" gibi ayrılma eki
+    const yearAbl = y => y + ["'dan","'den","'den","'ten","'ten","'ten","'dan","'den","'den","'dan"][y % 10];
+
+    function monthlyEq(amount, period) {
+        return period === 'yearly' ? amount / 12 : period === 'quarterly' ? amount / 3 : amount;
+    }
+    const periodText = p => ({ monthly: 'Aylık', quarterly: '3 Aylık', yearly: 'Yıllık' }[p] || p);
+
+    // Sözleşmenin Y yılının m. ayındaki bedeli
+    function contractPrice(c, m, Y) {
+        const idx = (Y - c.year) * 12 + (m - c.month);
+        return idx >= 0 && idx < c.months ? c.amount : 0;
+    }
+    function contractEnd(c) {
+        const t = c.year * 12 + (c.month - 1) + c.months - 1;
+        return { year: Math.floor(t / 12), month: (t % 12) + 1 };
+    }
+    function monthsIn(c, Y) { return Array.from({ length: 12 }, (_, i) => i + 1).filter(m => contractPrice(c, m, Y) > 0); }
+    function contractYears(c) {
+        const e = contractEnd(c), out = [];
+        for (let y = c.year; y <= e.year; y++) out.push({ y, n: monthsIn(c, y).length });
+        return out;
+    }
+
+    function incomeTax(base, brackets) {
+        let tax = 0, prev = 0;
+        const rows = [];
+        for (const b of brackets) {
+            if (base <= prev) break;
+            const portion = Math.min(base, b.limit) - prev;
+            rows.push({ from: prev, limit: b.limit, rate: b.rate, portion, tax: portion * b.rate });
+            tax += portion * b.rate;
+            prev = b.limit;
+        }
+        return { tax, rows };
+    }
+    function marginalRate(base, brackets) {
+        if (base <= 0) return 0;
+        for (const b of brackets) if (base <= b.limit) return b.rate;
+        return brackets[brackets.length - 1].rate;
+    }
+    function toBase(profit, young, exemptionLimit) {
+        const ex = young ? Math.min(Math.max(profit, 0), exemptionLimit) : 0;
+        return { exemption: ex, base: Math.max(0, profit - ex) };
+    }
+    const bracketText = (b, brackets) => (b.limit === Infinity ? fn(brackets[brackets.length - 2].limit) + ' TL üstü' : fn(b.limit) + " TL'ye kadar") + ' %' + Math.round(b.rate * 100);
+
+    // ---------- AYARLAR ----------
+    function readSettings() {
+        return {
+            incomeKdv: parseFloat(document.getElementById('incomeKdv').value),
+            bagkurType: document.getElementById('bagkurType').value,
+            bagkurMult: Math.max(1, num('bagkurMult') || 1),
+            other: Math.max(0, num('otherIncome')),
+            young: document.getElementById('youngEntrepreneur').checked
+        };
+    }
+    function bagkurFor(s, P) {
+        if (s.bagkurType === 'yok') return { base: 0, rate: 0, amount: 0 };
+        const base = Math.min(P.minWage * P.maxMult, P.minWage * s.bagkurMult);
+        const rate = P.bagkurRates[s.bagkurType];
+        return { base, rate, amount: base * rate };
+    }
+
+    // İşletmenin faal olduğu ay aralığı (ilk sözleşme başı – son sözleşme sonu)
+    function activeRange() {
+        if (!contracts.length) return { from: CURRENT_YEAR * 12, to: CURRENT_YEAR * 12 + 11 };
+        let from = Infinity, to = -Infinity;
+        contracts.forEach(c => {
+            const e = contractEnd(c);
+            from = Math.min(from, c.year * 12 + c.month - 1);
+            to = Math.max(to, e.year * 12 + e.month - 1);
+        });
+        return { from, to };
+    }
+    function yearList() {
+        const r = activeRange();
+        const ys = [];
+        for (let y = Math.floor(r.from / 12); y <= Math.floor(r.to / 12); y++) ys.push(y);
+        return ys;
+    }
+
+    // ---------- BİR VERGİ YILININ HESABI ----------
+    function computeYear(Y, s, carryKdvIn, range) {
+        const P = yp(Y);
+        const bk = bagkurFor(s, P);
+        const yearExpenses = expenses.filter(e => e.year === 'all' || Number(e.year) === Y);
+        const expMonthlyFull = yearExpenses.reduce((a, e) => a + monthlyEq(e.amount, e.period), 0);
+        const expKdvFull = yearExpenses.reduce((a, e) => a + monthlyEq(e.amount, e.period) * (e.kdv || 0), 0);
+
+        const months = [];
+        let cum = 0, prevTax = 0, carryKdv = carryKdvIn;
+        for (let m = 1; m <= 12; m++) {
+            const idx = Y * 12 + m - 1;
+            const active = idx >= range.from && idx <= range.to;
+            const fromContracts = contracts.reduce((a, c) => a + contractPrice(c, m, Y), 0);
+            const other = active ? s.other : 0;
+            const revenue = fromContracts + other;
+            const expense = active ? expMonthlyFull : 0;
+            const bagkur = active ? bk.amount : 0;
+            const kdvIn = active ? expKdvFull : 0;
+            const profit = revenue - expense - bagkur;
+            cum += profit;
+            const { base } = toBase(cum, s.young, P.youngExemption);
+            const taxToDate = incomeTax(base, P.brackets).tax;
+            const reserve = taxToDate - prevTax;
+            prevTax = taxToDate;
+
+            let kdvOut = other * s.incomeKdv, tevkif = 0;
+            contracts.forEach(c => {
+                const price = contractPrice(c, m, Y);
+                if (!price) return;
+                const k = price * s.incomeKdv;
+                kdvOut += k;
+                if (c.tevkifat && price + k > P.tevkifatLimit) tevkif += k * c.tevkifat;
+            });
+            const kdvReceived = kdvOut - tevkif;
+            const collection = revenue + kdvReceived;
+            const kdvNet = kdvReceived - kdvIn - carryKdv;
+            let kdvPay = 0;
+            if (kdvNet >= 0) { kdvPay = kdvNet; carryKdv = 0; } else { carryKdv = -kdvNet; }
+
+            months.push({
+                m, active, revenue, expense, bagkur, profit, cum, base,
+                rate: marginalRate(base, P.brackets), taxToDate, reserve, net: profit - reserve,
+                kdvOut, tevkif, kdvReceived, collection, kdvIn, kdvPay, kdvCarry: carryKdv,
+                renew: contracts.some(c => c.year === Y && c.month === m)
+            });
+        }
+
+        const annualRevenue = months.reduce((a, x) => a + x.revenue, 0);
+        const annualExpense = months.reduce((a, x) => a + x.expense, 0);
+        const annualBagkur = months.reduce((a, x) => a + x.bagkur, 0);
+        const profit = cum;
+        const { exemption, base } = toBase(profit, s.young, P.youngExemption);
+        const { tax, rows } = incomeTax(base, P.brackets);
+        const net = profit - tax;
+        const activeMonths = months.filter(x => x.active).length || 12;
+
+        const crossings = [];
+        P.brackets.slice(0, -1).forEach((b, i) => {
+            const mo = months.find(x => x.base > b.limit);
+            if (mo) crossings.push({ month: mo.m, limit: b.limit, newRate: P.brackets[i + 1].rate });
+        });
+
+        const quarters = [];
+        let gvPaid = 0;
+        for (let q = 1; q <= 4; q++) {
+            const ms = months.slice((q - 1) * 3, q * 3);
+            const cumProfit = months[q * 3 - 1].cum;
+            const qb = toBase(cumProfit, s.young, P.youngExemption);
+            const gross = qb.base * PROVISIONAL_RATE;
+            const dueAmt = Math.max(0, gross - gvPaid);
+            quarters.push({
+                q, revenue: ms.reduce((a, x) => a + x.revenue, 0), profit: ms.reduce((a, x) => a + x.profit, 0),
+                bagkur: ms.reduce((a, x) => a + x.bagkur, 0), kdv: ms.reduce((a, x) => a + x.kdvPay, 0),
+                active: ms.some(x => x.active),
+                cumProfit, exemption: qb.exemption, base: qb.base, gross, prevPaid: gvPaid, due: dueAmt, deadline: P.gvDeadlines[q - 1]
+            });
+            gvPaid += dueAmt;
+        }
+        const finalDue = tax - gvPaid;
+        const installments = finalDue > 0 ? [finalDue / 2, finalDue / 2] : [0, 0];
+
+        // Bu yılın vergilerine ait ödemeler (bir kısmı sonraki yıla sarkar)
+        const cal = [];
+        months.forEach(x => {
+            if (!x.active) return;
+            if (x.bagkur > 0) cal.push({ date: due(Y, x.m, 0), src: Y, type: 'bagkur', desc: `${ym(Y, x.m)} primi`, amount: x.bagkur });
+            cal.push({ date: due(Y, x.m, 28), src: Y, type: 'kdv', desc: `${ym(Y, x.m)} KDV'si` + (x.kdvCarry > 0 ? ` (devreden ${fc(x.kdvCarry)})` : ''), amount: x.kdvPay });
+        });
+        quarters.forEach(q => { if (q.active || q.due > 0) cal.push({ date: q.deadline, src: Y, type: 'gv', desc: `${Y} ${Q_LABEL[q.q - 1]}`, amount: q.due }); });
+        if (finalDue > 0) {
+            cal.push({ date: P.annualDeadlines[0], src: Y, type: 'yillik', desc: `${Y} yılı beyanı – 1. taksit`, amount: installments[0] });
+            cal.push({ date: P.annualDeadlines[1], src: Y, type: 'yillik', desc: `${Y} yılı beyanı – 2. taksit`, amount: installments[1] });
+        }
+
+        return {
+            Y, P, s, bk, expMonthlyFull, expKdvFull, months, annualRevenue, annualExpense, annualBagkur, activeMonths,
+            profit, exemption, base, tax, rows, net, crossings, quarters, gvPaid, finalDue, installments, cal,
+            carryIn: carryKdvIn, carryOut: carryKdv,
+            effective: profit > 0 ? tax / profit : 0, topRate: marginalRate(base, P.brackets),
+            totalKdv: months.reduce((a, x) => a + x.kdvPay, 0),
+            totalTevkif: months.reduce((a, x) => a + x.tevkif, 0),
+            totalKdvOut: months.reduce((a, x) => a + x.kdvOut, 0),
+            totalKdvIn: months.reduce((a, x) => a + x.kdvIn, 0),
+            totalCollection: months.reduce((a, x) => a + x.collection, 0)
+        };
+    }
+
+    // ---------- TÜM YILLAR ----------
+    function computeAll() {
+        const s = readSettings();
+        const range = activeRange();
+        const years = {};
+        const list = yearList();
+        let carry = 0;
+        list.forEach(Y => { years[Y] = computeYear(Y, s, carry, range); carry = years[Y].carryOut; });
+
+        const today = new Date();
+        const cal = list.flatMap(Y => years[Y].cal).map(c => ({ ...c, cashYear: c.date.getFullYear(), paid: c.date < today }));
+        cal.sort((a, b) => a.date - b.date || a.src - b.src);
+
+        const cashYears = [...new Set(cal.map(c => c.cashYear))].sort();
+        const summary = cashYears.map(cy => {
+            const items = cal.filter(c => c.cashYear === cy);
+            const sum = f => items.filter(f).reduce((a, c) => a + c.amount, 0);
+            return {
+                cy, carried: sum(c => c.src < cy), own: sum(c => c.src === cy),
+                total: sum(() => true), paid: sum(c => c.paid), remaining: sum(c => !c.paid)
+            };
+        });
+        return { s, list, years, cal, cashYears, summary };
+    }
+
+    // ---------- EKRANA YAZ ----------
+    function updateCalculations() {
+        ALL = computeAll();
+
+        // Yıl seçici
+        const ysel = document.getElementById('yearSel');
+        const prevSel = userYear || CURRENT_YEAR;
+        ysel.innerHTML = ALL.list.map(y => `<option value="${y}">${y}${yp(y).estimated ? ' (tahmini)' : ''}</option>`).join('');
+        ysel.value = ALL.list.includes(prevSel) ? prevSel : (ALL.list.includes(CURRENT_YEAR) ? CURRENT_YEAR : ALL.list[ALL.list.length - 1]);
+        const Y = Number(ysel.value);
+        const R = LAST = ALL.years[Y];
+        document.querySelectorAll('.selYear').forEach(e => e.textContent = Y);
+        document.getElementById('estBadge').style.display = R.P.estimated ? '' : 'none';
+
+        // Bağ-Kur ipucu
+        const s = ALL.s;
+        document.getElementById('bagkurHint').textContent = s.bagkurType === 'yok' ? 'Bağ-Kur hesaba katılmıyor.'
+            : 'Aylık prim: ' + ALL.list.map(y => { const b = bagkurFor(s, yp(y)); return `${y}: ${fc(b.amount)}`; }).join(' · ');
+
+        // Kartlar
+        setCard('cardYearNet', R.net, true, `Ciro ${fc(R.annualRevenue)}`);
+        setCard('cardMonthNet', R.net / R.activeMonths, true, `${R.activeMonths} faal ay üzerinden`);
+        setCard('cardTax', R.tax, false, `Efektif oran ${pct(R.effective)}`);
+        document.getElementById('cardBracket').innerHTML = R.base > 0 ? '%' + Math.round(R.topRate * 100) : '—';
+        const lastCross = R.crossings[R.crossings.length - 1];
+        document.getElementById('cardBracketSub').innerHTML = lastCross ? `${MONTHS[lastCross.month - 1]} ayında geçildi` : (R.base > 0 ? 'İlk dilimde kalındı' : '&nbsp;');
+
+        // Aylık tablo
+        document.getElementById('monthBody').innerHTML = R.months.map(x => `
+            <tr class="${x.renew ? 'renew' : ''}${!x.active ? ' past' : ''}">
+                <td>${MONTHS[x.m - 1]}${x.renew ? '<span class="pill">Yeni sözleşme</span>' : ''}</td>
+                <td class="num">${fc(x.revenue)}</td>
+                <td class="num">${fc(x.expense + x.bagkur)}</td>
+                <td class="num">${fc(x.profit)}</td>
+                <td class="num">${fc(x.base)}</td>
+                <td>${rateBadge(x.rate)}</td>
+                <td class="num">${fc(x.reserve)}</td>
+                <td class="num fw-bold">${fc(x.net)}</td>
+            </tr>`).join('') + `
+            <tr class="total"><td>Toplam</td><td class="num">${fc(R.annualRevenue)}</td><td class="num">${fc(R.annualExpense + R.annualBagkur)}</td>
+                <td class="num">${fc(R.profit)}</td><td class="num">${fc(R.base)}</td><td></td><td class="num">${fc(R.tax)}</td><td class="num">${fc(R.net)}</td></tr>`;
+        document.getElementById('bracketNote').innerHTML = (R.crossings.length
+            ? 'Dilim geçişleri: ' + R.crossings.map(c => `<b>${MONTHS_LOC[c.month - 1]}</b> birikimli matrah ${fn(c.limit)} TL'yi aşıyor, sonraki kazanç <b>%${Math.round(c.newRate * 100)}</b> ile vergileniyor`).join(' · ')
+            : 'Matrah yıl boyunca ilk dilimde kalıyor.') + ` (${Y} tarifesi: ${R.P.brackets.map(b => bracketText(b, R.P.brackets)).join(', ')})`;
+
+        // Çeyrek tablo
+        document.getElementById('quarterBody').innerHTML = R.quarters.map(q => `
+            <tr>
+                <td>${Q_LABEL[q.q - 1]}</td><td class="num">${fc(q.revenue)}</td><td class="num">${fc(q.profit)}</td>
+                <td class="num">${fc(q.bagkur)}</td><td class="num">${fc(q.kdv)}</td><td class="num">${fc(q.due)}</td>
+                <td>${fd(q.deadline)}</td><td class="num fw-bold">${fc(q.bagkur + q.kdv + q.due)}</td>
+            </tr>`).join('') + `
+            <tr class="total"><td>Yıl toplamı</td><td class="num">${fc(R.annualRevenue)}</td><td class="num">${fc(R.profit)}</td>
+                <td class="num">${fc(R.annualBagkur)}</td><td class="num">${fc(R.totalKdv)}</td><td class="num">${fc(R.gvPaid)}</td><td></td>
+                <td class="num">${fc(R.annualBagkur + R.totalKdv + R.gvPaid)}</td></tr>
+            <tr class="total"><td colspan="5">Yıllık beyan (Mart ${Y + 1}): gelir vergisi ${fc(R.tax)} − ödenen geçici vergi ${fc(R.gvPaid)}</td>
+                <td class="num">${fc(Math.abs(R.finalDue))}</td><td colspan="2">${R.finalDue > 0 ? `${fd(R.P.annualDeadlines[0])} ve ${fd(R.P.annualDeadlines[1])}, 2 eşit taksit` : (R.finalDue < 0 ? 'Fazla ödeme: mahsup / iade' : '—')}</td></tr>`;
+
+        // KDV tablosu
+        document.getElementById('kdvBody').innerHTML = (R.carryIn > 0 ? `<tr class="carry"><td colspan="6">Önceki yıldan devreden KDV</td><td class="num">${fc(R.carryIn)}</td><td></td></tr>` : '') +
+            R.months.map(x => `
+            <tr class="${!x.active ? 'past' : ''}">
+                <td>${MONTHS[x.m - 1]}</td><td class="num">${fc(x.kdvOut)}</td><td class="num">${x.tevkif ? '− ' + fc(x.tevkif) : fc(0)}</td>
+                <td class="num">${fc(x.kdvReceived)}</td><td class="num">${fc(x.kdvIn)}</td><td class="num fw-bold">${fc(x.kdvPay)}</td>
+                <td class="num">${fc(x.kdvCarry)}</td><td class="num">${fc(x.collection)}</td>
+            </tr>`).join('') + `
+            <tr class="total"><td>Toplam</td><td class="num">${fc(R.totalKdvOut)}</td><td class="num">${R.totalTevkif ? '− ' + fc(R.totalTevkif) : fc(0)}</td>
+                <td class="num">${fc(R.totalKdvOut - R.totalTevkif)}</td><td class="num">${fc(R.totalKdvIn)}</td><td class="num">${fc(R.totalKdv)}</td>
+                <td class="num">${fc(R.carryOut)}</td><td class="num">${fc(R.totalCollection)}</td></tr>`;
+
+        // Yıllara göre özet
+        document.getElementById('cashSummaryBody').innerHTML = ALL.summary.length ? ALL.summary.map(x => `
+            <tr class="${x.cy === CURRENT_YEAR ? 'renew' : ''}">
+                <td class="fw-bold">${x.cy}${x.cy === CURRENT_YEAR ? ' <span class="pill">bu yıl</span>' : ''}</td>
+                <td class="num">${fc(x.carried)}</td><td class="num">${fc(x.own)}</td><td class="num fw-bold">${fc(x.total)}</td>
+                <td class="num">${fc(x.paid)}</td><td class="num">${fc(x.remaining)}</td>
+            </tr>`).join('') + (() => {
+                const t = k => ALL.summary.reduce((a, x) => a + x[k], 0);
+                return `<tr class="total"><td>Genel toplam</td><td class="num">${fc(t('carried'))}</td><td class="num">${fc(t('own'))}</td><td class="num">${fc(t('total'))}</td><td class="num">${fc(t('paid'))}</td><td class="num">${fc(t('remaining'))}</td></tr>`;
+            })() : '<tr><td colspan="6" class="text-center text-muted py-3">Ödeme yok</td></tr>';
+
+        renderCalendar();
+        renderDashboard();
+        save();
+    }
+
+    function renderCalendar() {
+        const sel = document.getElementById('calYear');
+        const prev = sel.value || String(CURRENT_YEAR);
+        sel.innerHTML = ALL.cashYears.map(y => `<option value="${y}">${y} yılında ödenenler</option>`).join('') + '<option value="all">Tüm yıllar</option>';
+        sel.value = [...sel.options].some(o => o.value === prev) ? prev : (ALL.cashYears.includes(CURRENT_YEAR) ? String(CURRENT_YEAR) : 'all');
+        const items = sel.value === 'all' ? ALL.cal : ALL.cal.filter(c => c.cashYear === Number(sel.value));
+
+        // Kalem × ait olduğu yıl dökümü
+        const groups = {};
+        items.forEach(c => {
+            const k = c.type + '|' + c.src;
+            groups[k] = groups[k] || { type: c.type, src: c.src, paid: 0, rem: 0 };
+            groups[k][c.paid ? 'paid' : 'rem'] += c.amount;
+        });
+        const order = ['yillik', 'gv', 'kdv', 'bagkur'];
+        const g = Object.values(groups).sort((a, b) => a.src - b.src || order.indexOf(a.type) - order.indexOf(b.type));
+        const tot = k => g.reduce((a, x) => a + x[k], 0);
+        document.getElementById('calBreakdownBody').innerHTML = g.length ? g.map(x => {
+            const carried = sel.value !== 'all' && x.src < Number(sel.value);
+            return `<tr class="${carried ? 'carry' : ''}">
+                <td><span class="type-badge t-${x.type}">${TYPE_LABEL[x.type]}</span></td>
+                <td>${x.src}${carried ? '<span class="carry-badge">önceki yıldan</span>' : ''}</td>
+                <td class="num">${fc(x.paid)}</td><td class="num">${fc(x.rem)}</td><td class="num fw-bold">${fc(x.paid + x.rem)}</td></tr>`;
+        }).join('') + `<tr class="total"><td colspan="2">Toplam</td><td class="num">${fc(tot('paid'))}</td><td class="num">${fc(tot('rem'))}</td><td class="num">${fc(tot('paid') + tot('rem'))}</td></tr>`
+            : '<tr><td colspan="5" class="text-center text-muted py-3">Ödeme yok</td></tr>';
+
+        // Ayrıntılı liste
+        document.getElementById('calendarBody').innerHTML = items.length ? items.map(c => {
+            const carried = c.src < c.cashYear;
+            return `<tr class="${c.paid ? 'past' : ''}${carried ? ' carry' : ''}">
+                <td style="white-space:nowrap">${fd(c.date)}</td>
+                <td><span class="type-badge t-${c.type}">${TYPE_LABEL[c.type]}</span></td>
+                <td>${c.desc}${carried ? `<span class="carry-badge">${yearAbl(c.src)} sarkan</span>` : ''}</td>
+                <td class="num">${fc(c.amount)}</td>
+                <td>${c.paid ? '<span class="status-paid">Ödendi</span>' : '<span class="status-due">Bekliyor</span>'}</td>
+            </tr>`;
+        }).join('') : '<tr><td colspan="5" class="text-center text-muted py-3">Ödeme yok</td></tr>';
+    }
+
+    function setCard(id, v, colored, sub) {
+        const el = document.getElementById(id);
+        el.textContent = fc(v);
+        el.classList.remove('pos', 'neg');
+        if (colored) el.classList.add(v < 0 ? 'neg' : 'pos');
+        document.getElementById(id + 'Sub').innerHTML = sub;
+    }
+
+    // ---------- RAPOR ----------
+    function buildReport(R) {
+        const s = R.s, P = R.P, Y = R.Y;
+        const h = [];
+        if (PROFILE && (PROFILE.company || PROFILE.name)) {
+            h.push(`<p class="mb-1"><b>${esc(PROFILE.company || PROFILE.name)}</b>${PROFILE.company && PROFILE.name ? ' — ' + esc(PROFILE.name) : ''}</p>`);
+            const ids = [PROFILE.taxNo && 'VKN/TCKN: ' + esc(PROFILE.taxNo), PROFILE.taxOffice && 'Vergi dairesi: ' + esc(PROFILE.taxOffice), PROFILE.activity && esc(PROFILE.activity)].filter(Boolean);
+            if (ids.length) h.push(`<p class="small text-muted mb-2">${ids.join(' · ')}</p>`);
+        }
+        h.push(`<p class="text-muted">Bu rapor ${Y} vergi yılının hesabını adım adım ve ${Y} yılında yapılan tüm ödemeleri (önceki yıldan sarkanlar dahil) gösterir. Oluşturulma: ${new Date().toLocaleString('tr-TR')}</p>`);
+        if (P.estimated) h.push(`<p class="text-warning fw-bold">${Y} yılının vergi dilimleri ve Bağ-Kur tutarları henüz açıklanmadığı için en son bilinen yılın değerleri kullanılmıştır; sonuçlar tahminidir.</p>`);
+
+        h.push('<h5>1. Kullanılan parametreler</h5><ul>');
+        h.push(`<li>${Y} gelir vergisi tarifesi (ücret dışı, GVK 103): ${P.brackets.map(b => bracketText(b, P.brackets)).join(' · ')}</li>`);
+        h.push(`<li>Geçici vergi oranı: %15 (birikimli dönem kârı üzerinden)</li>`);
+        h.push(`<li>Bağ-Kur: ${R.bk.amount ? 'prime esas kazanç ' + fc(R.bk.base) + ' × ' + pct(R.bk.rate) + ' = aylık ' + fc(R.bk.amount) : 'ödenmiyor'}</li>`);
+        h.push(`<li>Satış KDV oranı: ${pct(s.incomeKdv)} · Tevkifat sınırı (KDV dahil fatura): ${fn(P.tevkifatLimit)} TL</li>`);
+        h.push(`<li>Genç girişimci istisnası: ${s.young ? 'uygulanıyor (' + fc(P.youngExemption) + ')' : 'uygulanmıyor'}</li></ul>`);
+
+        h.push(`<h5>2. ${Y} yılına düşen sözleşme gelirleri</h5>`);
+        const inYear = contracts.filter(c => monthsIn(c, Y).length);
+        if (!inYear.length) h.push('<p>Bu yıla düşen sözleşme yok.</p>');
+        inYear.forEach(c => {
+            const e = contractEnd(c), ms = monthsIn(c, Y);
+            let lines = `${esc(c.name)} — aylık ${fc(c.amount)}, ${ym(c.year, c.month)} – ${ym(e.year, e.month)} (${c.months} ay)\n`;
+            lines += `${Y} yılına düşen: ${ms.length} ay (${MONTHS[ms[0] - 1]}–${MONTHS[ms[ms.length - 1] - 1]}) × ${fc(c.amount)} = ${fc(ms.length * c.amount)}`;
+            if (ms.length < c.months) lines += `\n(Kalan ${c.months - ms.length} ay başka yılın gelirine aittir)`;
+            h.push(`<div class="formula">${lines}</div>`);
+        });
+        if (s.other) h.push(`<div class="formula">Sözleşme dışı sabit gelir: ${fc(s.other)} × ${R.activeMonths} faal ay</div>`);
+
+        h.push('<h5>3. Giderler ve Bağ-Kur</h5>');
+        const ye = expenses.filter(e => e.year === 'all' || Number(e.year) === Y);
+        h.push(`<div class="formula">Aylık gider = ${ye.length ? ye.map(e => `${esc(e.name)} ${fc(monthlyEq(e.amount, e.period))}`).join(' + ') : '0'} = ${fc(R.expMonthlyFull)}\nAylık Bağ-Kur = ${fc(R.bk.amount)}\nFaal ay sayısı: ${R.activeMonths} → yıllık gider ${fc(R.annualExpense)} + yıllık Bağ-Kur ${fc(R.annualBagkur)}</div>`);
+
+        h.push('<h5>4. Aylık kâr, birikimli matrah ve vergi karşılığı</h5>');
+        h.push('<p class="small">Aylık kâr = Ciro − Gider − Bağ-Kur. Vergi karşılığı = (o aya kadarki birikimli matrahın vergisi) − (bir önceki aya kadarki vergi).</p>');
+        h.push('<table class="table table-sm table-bordered"><thead><tr><th>Ay</th><th class="num">Ciro</th><th class="num">Aylık kâr</th><th class="num">Birikimli matrah</th><th class="num">Birikimli vergi</th><th class="num">Bu ayın vergisi</th><th>Dilim</th></tr></thead><tbody>');
+        R.months.forEach(x => h.push(`<tr><td>${MONTHS[x.m - 1]}${x.renew ? ' (yeni sözleşme)' : ''}</td><td class="num">${fc(x.revenue)}</td><td class="num">${fc(x.profit)}</td><td class="num">${fc(x.base)}</td><td class="num">${fc(x.taxToDate)}</td><td class="num">${fc(x.reserve)}</td><td>${x.rate ? '%' + Math.round(x.rate * 100) : '—'}</td></tr>`));
+        h.push('</tbody></table>');
+        if (R.crossings.length) h.push('<ul>' + R.crossings.map(c => `<li>${MONTHS[c.month - 1]}: birikimli matrah ${fn(c.limit)} TL sınırını aştı; üzerindeki kazanç %${Math.round(c.newRate * 100)} ile vergilenir.</li>`).join('') + '</ul>');
+
+        h.push(`<h5>5. ${Y} yıllık gelir vergisi</h5>`);
+        h.push(`<div class="formula">Ticari kâr = ${fc(R.annualRevenue)} − ${fc(R.annualExpense)} − ${fc(R.annualBagkur)} = ${fc(R.profit)}${s.young ? `\nGenç girişimci istisnası: − ${fc(R.exemption)}` : ''}\nVergi matrahı = ${fc(R.base)}</div>`);
+        if (R.rows.length) {
+            h.push(`<div class="formula">${R.rows.map(r => `${r.limit === Infinity ? fn(r.from) + ' TL üstü' : fn(r.from) + ' – ' + fn(r.limit)} dilimi: ${fc(r.portion)} × %${Math.round(r.rate * 100)} = ${fc(r.tax)}`).join('\n')}\nToplam gelir vergisi = ${fc(R.tax)}   (efektif oran ${pct(R.effective)})</div>`);
+        } else h.push('<p>Matrah oluşmadığı için gelir vergisi çıkmaz.</p>');
+
+        h.push('<h5>6. Geçici vergi</h5>');
+        R.quarters.forEach(q => h.push(`<div class="formula">${Y} ${Q_LABEL[q.q - 1]} — son gün ${fd(q.deadline)}\nBirikimli kâr ${fc(q.cumProfit)}${q.exemption ? ' − istisna ' + fc(q.exemption) : ''} = matrah ${fc(q.base)}\n${fc(q.base)} × %15 = ${fc(q.gross)} − önceki ödenen ${fc(q.prevPaid)} = ödenecek ${fc(q.due)}</div>`));
+
+        h.push('<h5>7. Yıllık beyan ve taksitler</h5>');
+        h.push(`<div class="formula">Yıllık gelir vergisi ${fc(R.tax)} − toplam geçici vergi ${fc(R.gvPaid)} = ${fc(R.finalDue)}\n${R.finalDue > 0 ? `1. taksit (${fd(P.annualDeadlines[0])}): ${fc(R.installments[0])}\n2. taksit (${fd(P.annualDeadlines[1])}): ${fc(R.installments[1])}` : (R.finalDue < 0 ? 'Fazla ödenen geçici vergi mahsup edilir veya iade istenebilir.' : 'Ek ödeme yok.')}</div>`);
+
+        h.push('<h5>8. KDV ve tevkifat</h5>');
+        h.push(`<p class="small">Hesaplanan KDV = fatura bedeli × ${pct(s.incomeKdv)}. KDV dahil fatura ${fn(P.tevkifatLimit)} TL'yi aşıyorsa alıcı tevkifat oranındaki kısmı kendisi öder. Ödenecek KDV = Size ödenen KDV − Gider KDV'si − devreden. Beyan ve ödeme izleyen ayın 28'inde.${R.carryIn > 0 ? ` Önceki yıldan ${fc(R.carryIn)} devreden KDV ile başlandı.` : ''}</p>`);
+        inYear.filter(c => c.tevkifat).forEach(c => {
+            const ms = monthsIn(c, Y), k = c.amount * s.incomeKdv, gross = c.amount + k;
+            h.push(`<div class="formula">${esc(c.name)} — ${tevText(c.tevkifat)} tevkifat\n${gross > P.tevkifatLimit
+                ? `${MONTHS[ms[0] - 1]}–${MONTHS[ms[ms.length - 1] - 1]}: KDV ${fc(c.amount)} × ${pct(s.incomeKdv)} = ${fc(k)} → tevkif ${fc(k * c.tevkifat)}, size ödenen ${fc(k * (1 - c.tevkifat))}`
+                : `KDV dahil ${fc(gross)} ≤ ${fn(P.tevkifatLimit)} TL, tevkifat uygulanmaz`}</div>`);
+        });
+        h.push(`<div class="formula">Yıl toplamı: hesaplanan ${fc(R.totalKdvOut)} − tevkif edilen ${fc(R.totalTevkif)} − gider KDV'si ${fc(R.totalKdvIn)} → ödenen ${fc(R.totalKdv)}, yıl sonu devreden ${fc(R.carryOut)}</div>`);
+
+        h.push('<h5>9. Sonuç</h5>');
+        h.push(`<div class="formula">Yıllık net kazanç = ${fc(R.profit)} − ${fc(R.tax)} = ${fc(R.net)}\nOrtalama aylık net = ${fc(R.net)} ÷ ${R.activeMonths} = ${fc(R.net / R.activeMonths)}\nToplam vergi + prim yükü (KDV hariç) = ${fc(R.tax + R.annualBagkur)}</div>`);
+
+        // Nakit ödemeler
+        const items = ALL.cal.filter(c => c.cashYear === Y);
+        const carried = items.filter(c => c.src < Y), own = items.filter(c => c.src === Y);
+        const later = ALL.cal.filter(c => c.src === Y && c.cashYear > Y);
+        const sum = a => a.reduce((t, c) => t + c.amount, 0);
+        const list = a => a.map(c => `${fd(c.date)}  ${TYPE_LABEL[c.type]} – ${c.desc}: ${fc(c.amount)}${c.paid ? '  (ödendi)' : ''}`).join('\n');
+        h.push(`<h5>10. ${Y} yılında yapılan ödemeler</h5>`);
+        h.push(`<p class="small">${Y} içinde ödenen/ödenecek toplam: <b>${fc(sum(items))}</b> = önceki yıllardan sarkan ${fc(sum(carried))} + ${Y} yılının kendi vergileri ${fc(sum(own))}.</p>`);
+        if (carried.length) h.push(`<div class="formula">Önceki yıllardan sarkan:\n${list(carried)}</div>`);
+        if (later.length) h.push(`<p class="small">${Y} yılının vergilerinden sonraki yıla kalan: <b>${fc(sum(later))}</b></p><div class="formula">${list(later)}</div>`);
+
+        h.push('<p class="small text-muted">Bu rapor bilgilendirme amaçlı bir tahmindir; kesin beyan için mali müşavirinize danışın.</p>');
+        return h.join('');
+    }
+
+    // Açık olan rapor: { title, html, filename }
+    let REPORT = null;
+    function showReportModal(rep) {
+        REPORT = rep;
+        document.getElementById('reportTitleText').textContent = rep.title;
+        document.getElementById('reportBody').innerHTML = rep.html;
+        const modal = document.getElementById('reportModal');
+        if (window.bootstrap) { bootstrap.Modal.getOrCreateInstance(modal).show(); return; }
+        modal.style.cssText = 'display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);overflow:auto;z-index:1050';
+        modal.querySelectorAll('[data-bs-dismiss]').forEach(b => b.onclick = () => modal.style.display = 'none');
+    }
+    function openReport() {
+        if (!LAST) updateCalculations();
+        showReportModal({ title: `Şahıs Firması Hesap Raporu — ${LAST.Y}`, html: buildReport(LAST), filename: `hesap-raporu-${LAST.Y}.pdf` });
+    }
+
+    // PDF'i sayfanın içinde oluşturup indirir (açılır pencere gerekmez)
+    async function downloadPdf() {
+        if (!REPORT) openReport();
+        if (!window.html2pdf) { printReport(); return; }   // kütüphane yüklenemediyse yazdırmaya geç
+        const btn = document.getElementById('pdfBtn');
+        const oldHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Hazırlanıyor…';
+        const sheet = document.createElement('div');
+        sheet.className = 'pdf-sheet report-content';
+        sheet.innerHTML = `<h3>${esc(REPORT.title)}</h3>${REPORT.html}`;
+        try {
+            await html2pdf().set({
+                margin: [10, 8, 12, 8],
+                filename: REPORT.filename,
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { scale: 2, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.formula', 'h5'] }
+            }).from(sheet).save();
+        } catch (e) {
+            console.error(e);
+            alert('PDF oluşturulamadı. Açılan yazdırma ekranında hedef olarak "PDF olarak kaydet"i seçebilirsiniz.');
+            printReport();
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = oldHtml;
+        }
+    }
+
+    // Aynı sayfada yalnızca raporu yazdırır; yazıcı yerine "PDF olarak kaydet" seçilebilir
+    function printReport() {
+        if (!REPORT) openReport();
+        const area = document.getElementById('printArea');
+        area.innerHTML = `<h3 class="mb-3">${esc(REPORT.title)}</h3>${REPORT.html}`;
+        document.body.classList.add('print-report');
+        const done = () => { document.body.classList.remove('print-report'); window.removeEventListener('afterprint', done); };
+        window.addEventListener('afterprint', done);
+        try { window.print(); } catch (e) {}
+        setTimeout(done, 1000);
+    }
+
+    // ---------- TÜBİTAK REFERANS ÜCRETLERİ ----------
+    // 2025 BRÜT ücret tablosu (AG hizmet grubu). Satır: derece (1 en üst), değer: kademe 6 (giriş) … kademe 1 (tavan)
+    const TUBITAK_2025 = {
+        1: { 6: 379589.33, 5: 383342.77, 4: 387133.71, 3: 390962.58, 2: 394829.74, 1: 398735.54 },
+        2: { 6: 307506.08, 5: 325701.57, 4: 344988.74, 3: 363729.52, 2: 369840.65, 1: 375872.96 },
+        3: { 6: 261736.61, 5: 274611.01, 4: 286777.36, 3: 298078.48, 2: 302486.07, 1: 306959.69 },
+        4: { 6: 210887.04, 5: 228451.41, 4: 246387.69, 3: 253651.86, 2: 257392.95, 1: 261190.28 },
+        5: { 6: 168168.34, 5: 182921.17, 4: 193641.68, 3: 204294.20, 2: 207294.92, 1: 210340.62 },
+        6: { 6: 113528.07, 5: 126641.68, 4: 141328.98, 3: 155037.22, 2: 168608.34, 1: 183400.76 }
+    };
+    const AG_TITLES = {
+        1: 'Lider Araştırmacı (13+ yıl)', 2: 'Kıdemli Başuzman Araştırmacı (13+ yıl)', 3: 'Başuzman Araştırmacı (9+ yıl)',
+        4: 'Kıdemli Uzman Araştırmacı (5+ yıl)', 5: 'Uzman Araştırmacı (3+ yıl)', 6: 'Araştırmacı'
+    };
+    // Dönemsel artışlar: ym = yürürlük ayı (yıl*12 + ay-1)
+    const RAISE_DEFAULTS = [
+        { y: 2025, m: 7, rate: 15.57, official: true,  note: 'Temmuz 2025 memur zammı' },
+        { y: 2026, m: 1, rate: 17.85, official: true,  note: 'Ocak 2026: %11 + %6,85 enflasyon farkı' },
+        { y: 2026, m: 7, rate: 13.51, official: true,  note: 'Temmuz 2026: %7 + %6,01 enflasyon farkı' },
+        { y: 2027, m: 1, rate: 8.00,  official: false, note: 'Ocak 2027: %5 toplu sözleşme + tahmini enflasyon farkı' },
+        { y: 2027, m: 7, rate: 11.35, official: false, note: 'Temmuz 2027: %4 toplu sözleşme + tahmini enflasyon farkı' },
+        { y: 2028, m: 1, rate: 10.00, official: false, note: '2028: yeni toplu sözleşme, kaba tahmin' },
+        { y: 2028, m: 7, rate: 8.00,  official: false, note: '2028: yeni toplu sözleşme, kaba tahmin' }
+    ];
+    const raiseId = r => `raise_${r.y}_${r.m}`;
+    function readRef() {
+        const g = id => document.getElementById(id);
+        return {
+            derece: parseInt(g('refDerece').value, 10), kademe: parseInt(g('refKademe').value, 10),
+            month: parseInt(g('refMonth').value, 10), year: parseInt(g('refYear').value, 10),
+            table: g('refTable').value, progress: g('refProgress').checked,
+            raises: RAISE_DEFAULTS.map(r => ({ ...r, rate: (() => { const v = parseFloat(g(raiseId(r)).value); return isFinite(v) ? v : r.rate; })() }))
+        };
+    }
+    // idx (yıl*12+ay-1) ayındaki referans BRÜT ücret ve hesap adımları
+    function refBrutAt(idx, ref) {
+        ref = ref || readRef();
+        const startIdx = ref.year * 12 + ref.month - 1;
+        const steps = ref.progress ? Math.max(0, Math.floor((idx - startIdx) / 12)) : 0;
+        const kademe = Math.max(1, ref.kademe - steps);
+        const baseVal = TUBITAK_2025[ref.derece][kademe];
+        const tableFrom = ref.table === 'H2' ? 2025 * 12 + 6 : 2025 * 12;   // tablonun geçerli olduğu ilk ay
+        const applied = ref.raises.filter(r => { const ri = r.y * 12 + r.m - 1; return ri > tableFrom && ri <= idx; });
+        const value = applied.reduce((v, r) => v * (1 + r.rate / 100), baseVal);
+        return { value, baseVal, kademe, steps, capped: ref.progress && ref.kademe - steps < 1, applied, derece: ref.derece, d: ref.derece, k: kademe };
+    }
+    // TÜBİTAK çalışanının bir takvim yılındaki aylık neti (ücret geliri):
+    // brüt − SGK işçi payı %14 − işsizlik %1 (SGK tavanına kadar) − gelir vergisi (ücret tarifesi, kümülatif, asgari ücret istisnası düşülür)
+    // − damga vergisi binde 7,59 (asgari ücrete isabet eden kısım istisna)
+    const EMP_CACHE = {};
+    function employeeYear(Y, ref) {
+        const key = Y + JSON.stringify(ref) + JSON.stringify(futureRates());
+        if (EMP_CACHE[key]) return EMP_CACHE[key];
+        const P = yp(Y), tavan = P.minWage * P.maxMult, br = P.wageBrackets;
+        let cum = 0, cumMw = 0;
+        const out = [];
+        for (let m = 1; m <= 12; m++) {
+            const brut = refBrutAt(Y * 12 + m - 1, ref).value;
+            const pekBase = Math.min(brut, tavan), sgk = pekBase * 0.14, isz = pekBase * 0.01;
+            const matrah = brut - sgk - isz;
+            const gv = incomeTax(cum + matrah, br).tax - incomeTax(cum, br).tax; cum += matrah;
+            const mwMatrah = P.minWage * 0.85;
+            const gvIst = incomeTax(cumMw + mwMatrah, br).tax - incomeTax(cumMw, br).tax; cumMw += mwMatrah;
+            const gvNet = Math.max(0, gv - gvIst);
+            const dv = Math.max(0, (brut - P.minWage) * 0.00759);
+            out.push({ m, brut, sgk, isz, matrah, gv, gvIst, gvNet, dv, net: brut - sgk - isz - gvNet - dv, tavan, estimated: P.estimated });
+        }
+        return (EMP_CACHE[key] = out);
+    }
+    function employeeAt(idx, ref) { return employeeYear(Math.floor(idx / 12), ref)[idx % 12]; }
+
+    // TÜBİTAK'ta asgari sürelerde terfi edilen ve her yıl bir kademe ilerlenen tipik kariyer yolu (yıl → derece/kademe)
+    const CAREER_PATH = (() => {
+        const p = [], add = (d, k) => p.push({ years: p.length, d, k });
+        [6, 5, 4].forEach(k => add(6, k));            // 0–2 yıl Araştırmacı
+        [6, 5].forEach(k => add(5, k));               // 3–4 yıl Uzman Araştırmacı
+        [6, 5, 4, 3].forEach(k => add(4, k));         // 5–8 yıl Kıdemli Uzman
+        [6, 5, 4, 3].forEach(k => add(3, k));         // 9–12 yıl Başuzman
+        [6, 5, 4, 3, 2, 1].forEach(k => add(2, k));   // 13–18 yıl Kıdemli Başuzman
+        return p;
+    })();
+    // idx ayında bir derece/kademenin brüt ücreti (kademe ilerlemesi olmadan, sadece zamlar)
+    function levelBrutAt(d, k, idx, ref) {
+        ref = ref || readRef();
+        return refBrutAt(idx, { ...ref, derece: d, kademe: k, progress: false }).value;
+    }
+    // Bir brüt tutarın idx ayındaki TÜBİTAK karşılığı
+    function equivalentLevel(amount, idx, ref) {
+        ref = ref || readRef();
+        const path = CAREER_PATH.map(x => ({ ...x, value: levelBrutAt(x.d, x.k, idx, ref) }));
+        let res;
+        if (amount < path[0].value) res = { below: true, lo: path[0], hi: path[0], years: 0 };
+        else if (amount >= path[path.length - 1].value) {
+            // Kıdemli Başuzman tavanının üstü: Lider Araştırmacı kademelerine bak
+            const top = path[path.length - 1];
+            const lider = [6, 5, 4, 3, 2, 1].map(k => ({ d: 1, k, value: levelBrutAt(1, k, idx, ref) })).filter(x => x.value <= amount).pop();
+            res = { above: true, lo: lider || top, hi: lider || top, years: top.years, lider: !!lider };
+        } else {
+            const i = path.findIndex((x, j) => amount >= x.value && amount < path[j + 1].value);
+            const lo = path[i], hi = path[i + 1];
+            const frac = (amount - lo.value) / (hi.value - lo.value);
+            res = { lo, hi, frac, years: lo.years + frac };
+        }
+        res.nearest = res.frac !== undefined ? (res.frac < 0.5 ? res.lo : res.hi) : res.lo;
+        res.amount = amount; res.idx = idx; res.path = path;
+        // Kullanıcının referans seviyesine göre o tarihteki kendi deneyimi
+        const own = CAREER_PATH.find(x => x.d === ref.derece && x.k === ref.kademe);
+        // Kademe yılda bir ilerlediği için deneyim de tam yıl olarak sayılır
+        if (own) res.ownYears = own.years + (ref.progress ? Math.max(0, Math.floor((idx - (ref.year * 12 + ref.month - 1)) / 12)) : 0);
+        return res;
+    }
+    const lvlName = x => `AG-${x.d}/${x.k}`;
+    const yearsTxt = y => y.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+    function eqSentence(E) {
+        const t = d => AG_TITLES[d].replace(/ \(.*\)/, '');
+        if (E.below) return `${fc(E.amount)} brüt, en düşük kademenin (AG-6/6, ${fc(E.lo.value)}) altında; yeni başlayan Araştırmacı seviyesinin de altı.`;
+        if (E.above) return E.lider
+            ? `${fc(E.amount)} brüt, Kıdemli Başuzman tavanının üstünde; <b>${lvlName(E.lo)}</b> (Lider Araştırmacı) seviyesine denk.`
+            : `${fc(E.amount)} brüt, Kıdemli Başuzman tavanının (AG-2/1, ${fc(E.lo.value)}) üstünde; 18+ yıllık çalışana denk.`;
+        return `${fc(E.amount)} brüt, ${MONTHS[E.idx % 12]} ${Math.floor(E.idx / 12)} itibarıyla <b>${lvlName(E.lo)}</b> (${t(E.lo.d)}, ${fc(E.lo.value)}) ile <b>${lvlName(E.hi)}</b> (${t(E.hi.d)}, ${fc(E.hi.value)}) arasında → yaklaşık <b>${yearsTxt(E.years)} yıllık</b> çalışana eşdeğer.`;
+    }
+    function eqBadge(amount, idx) {
+        try {
+            const E = equivalentLevel(amount, idx);
+            const yrs = E.below ? '<1' : E.above ? '18+' : yearsTxt(E.years);
+            const own = E.ownYears !== undefined ? E.ownYears : null;
+            const gap = own !== null && !E.below && !E.above ? E.years - own : 0;
+            const cls = own === null ? '' : gap < -0.5 ? 'text-danger' : gap > 0.5 ? 'text-success' : '';
+            return `<span class="${cls}" title="Sizin o tarihteki deneyiminiz (referans seviyesine göre): ${own !== null ? yearsTxt(own) + ' yıl' : '—'}">${lvlName(E.nearest)} · ≈${yrs} yıl</span>`;
+        } catch (e) { return '—'; }
+    }
+    function runEqQuery() {
+        const amount = parseFloat(document.getElementById('eqAmount').value);
+        const el = document.getElementById('eqResult');
+        if (!(amount > 0)) { el.style.display = 'none'; return; }
+        const idx = parseInt(document.getElementById('eqYear').value, 10) * 12 + parseInt(document.getElementById('eqMonth').value, 10) - 1;
+        const E = equivalentLevel(amount, idx);
+        const own = E.ownYears !== undefined ? `<li>Referans ayarlarınıza göre bu tarihte sizin deneyiminiz ≈ <b>${yearsTxt(E.ownYears)} yıl</b> (${lvlName(refBrutAt(idx))}, ${fc(refBrutAt(idx).value)}).${!E.below && !E.above ? ` Tutar, deneyiminizden <span class="${E.years < E.ownYears ? 'gap-neg' : 'gap-pos'}">${yearsTxt(Math.abs(E.years - E.ownYears))} yıl ${E.years < E.ownYears ? 'daha az' : 'daha fazla'}</span> deneyime karşılık geliyor.` : ''}</li>` : '';
+        el.innerHTML = `<ul class="mb-0"><li>${eqSentence(E)}</li>${own}</ul>`;
+        el.style.display = '';
+    }
+
+    function renderRefControls() {
+        document.getElementById('refDerece').innerHTML = [1, 2, 3, 4, 5, 6].map(d => `<option value="${d}">AG-${d} – ${AG_TITLES[d]}</option>`).join('');
+        document.getElementById('refKademe').innerHTML = [6, 5, 4, 3, 2, 1].map(k => `<option value="${k}">${k}${k === 6 ? ' (giriş)' : k === 1 ? ' (tavan)' : ''}</option>`).join('');
+        document.getElementById('refMonth').innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+        document.getElementById('refYear').innerHTML = [2023, 2024, 2025, 2026, 2027].map(y => `<option value="${y}">${y}</option>`).join('');
+        document.getElementById('refRaises').innerHTML = RAISE_DEFAULTS.map(r => `
+            <div class="input-group input-group-sm" title="${r.note}">
+                <span class="input-group-text">${MONTHS[r.m - 1].slice(0, 3)} ${r.y}${r.official ? '' : '*'}</span>
+                <input type="number" step="0.01" class="form-control" id="${raiseId(r)}" value="${r.rate}">
+            </div>`).join('');
+        document.getElementById('eqMonth').innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+        document.getElementById('eqYear').innerHTML = [2025, 2026, 2027, 2028].map(y => `<option value="${y}">${y}</option>`).join('');
+        document.getElementById('eqMonth').value = '9'; document.getElementById('eqYear').value = '2026';
+        setRefDefaults();
+    }
+    function setRefDefaults() {
+        const g = id => document.getElementById(id);
+        g('refDerece').value = '3'; g('refKademe').value = '6'; g('refMonth').value = '9'; g('refYear').value = '2025';
+        g('refTable').value = 'H2'; g('refProgress').checked = true;
+        RAISE_DEFAULTS.forEach(r => g(raiseId(r)).value = r.rate);
+        updateRefSummary();
+    }
+    function getRefState() {
+        const r = readRef();
+        return { derece: r.derece, kademe: r.kademe, month: r.month, year: r.year, table: r.table, progress: r.progress,
+                 raises: Object.fromEntries(r.raises.map(x => [raiseId(x), x.rate])) };
+    }
+    function applyRefState(d) {
+        if (!d) return;
+        const g = id => document.getElementById(id);
+        ['derece', 'kademe', 'month', 'year'].forEach(k => { if (d[k]) g('ref' + k[0].toUpperCase() + k.slice(1)).value = String(d[k]); });
+        if (d.table) g('refTable').value = d.table;
+        if (d.progress !== undefined) g('refProgress').checked = !!d.progress;
+        if (d.raises) Object.entries(d.raises).forEach(([id, v]) => { if (g(id)) g(id).value = v; });
+        updateRefSummary();
+    }
+    function updateRefSummary() {
+        const r = readRef();
+        document.getElementById('refSummary').textContent = `AG-${r.derece} / kademe ${r.kademe} (${MONTHS[r.month - 1]} ${r.year}'ten itibaren${r.progress ? ', yıllık kademe ilerlemeli' : ''})`;
+    }
+
+    // Bir sonraki sözleşmeyi bul, TÜBİTAK referans netiyle teklifi hazırla
+    function predictNextOffer() {
+        let start, months = 6, tev = 0.9, prevName = null;
+        if (contracts.length) {
+            const last = [...contracts].sort((a, b) => (monthIdx(b) + b.months) - (monthIdx(a) + a.months))[0];
+            start = monthIdx(last) + last.months;
+            months = last.months; tev = last.tevkifat || 0; prevName = last.name;
+        } else {
+            const now = new Date(); start = now.getFullYear() * 12 + now.getMonth() + 1;
+        }
+        const y = Math.floor(start / 12), m = (start % 12) + 1;
+        const ref = refBrutAt(start);
+        const g = id => document.getElementById(id);
+        // Referans brütü teklif edersek elimize geçecek neti bul; böylece hesaplanan brüt = referans brüt olur
+        const O = { name: 'Tahmini', month: m, year: y, months, tevkifat: tev, mode: 'incremental', replace: true };
+        const { base } = offerBase(O);
+        const baseAll = base.length ? computeWith(base) : null;
+        const netAtRef = offerOutcome(O, ref.value, base, baseAll).addedNet / months;
+        if (![...g('oYear').options].some(o => o.value === String(y))) g('oYear').insertAdjacentHTML('beforeend', `<option value="${y}">${y}</option>`);
+        g('oName').value = `Tahmini teklif – ${MONTHS[m - 1]} ${y}`;
+        g('oNet').value = Math.round(netAtRef);
+        g('oMonth').value = String(m); g('oYear').value = String(y);
+        g('oDuration').value = String(months); g('oTevkifat').value = String(tev);
+        g('oMode').value = 'incremental'; g('oReplace').checked = true;
+        PREDICT_INFO = { prevName, y, m };
+        calcOffer();
+        document.getElementById('offerResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    let PREDICT_INFO = null;
+
+    // ---------- NET'TEN BRÜT TEKLİF ----------
+    // Verilen sözleşme listesiyle tüm yılları hesaplar (global listeyi geçici olarak değiştirir)
+    function computeWith(list) {
+        const saved = contracts;
+        contracts = list;
+        try { return computeAll(); } finally { contracts = saved; }
+    }
+    const totalNet = A => A.list.reduce((t, y) => t + A.years[y].net, 0);
+    const monthIdx = c => c.year * 12 + c.month - 1;
+    function overlaps(a, b) {
+        const a0 = monthIdx(a), a1 = a0 + a.months - 1, b0 = monthIdx(b), b1 = b0 + b.months - 1;
+        return a0 <= b1 && b0 <= a1;
+    }
+    // Belirli bir brüt bedelle teklifin getirdiği ek net (ve ayrıntılar)
+    function offerOutcome(O, gross, base, baseAll) {
+        const hyp = { id: -1, name: O.name, amount: gross, months: O.months, month: O.month, year: O.year, tevkifat: O.tevkifat };
+        const withAll = computeWith([...base, hyp]);
+        const baseNet = baseAll ? totalNet(baseAll) : 0;
+        return { hyp, withAll, addedNet: totalNet(withAll) - baseNet };
+    }
+    // Hesaba katılacak mevcut sözleşmeler (yenileme ise aynı aylardakiler çıkarılır)
+    function offerBase(O) {
+        if (O.mode !== 'incremental') return { base: [], removed: [] };
+        const probe = { ...O, amount: 0 };
+        return {
+            base: contracts.filter(c => !(O.replace && overlaps(c, probe))),
+            removed: O.replace ? contracts.filter(c => overlaps(c, probe)) : []
+        };
+    }
+    // Aylık netPerMonth'a ulaşmak için gereken brüt bedel (ikiye bölme yöntemi; brüt arttıkça net de artar)
+    function solveGross(O, netPerMonth, base, baseAll) {
+        const targetTotal = netPerMonth * O.months;
+        let lo = 0, hi = Math.max(netPerMonth * 2, 100000), steps = 0, out = offerOutcome(O, hi, base, baseAll);
+        while (out.addedNet < targetTotal && hi < 1e12) { lo = hi; hi *= 2; out = offerOutcome(O, hi, base, baseAll); steps++; }
+        for (let k = 0; k < 80 && hi - lo > 0.005; k++) {
+            const mid = (lo + hi) / 2;
+            const r = offerOutcome(O, mid, base, baseAll);
+            if (r.addedNet >= targetTotal) hi = mid; else lo = mid;
+            steps++;
+        }
+        return { gross: hi, steps };
+    }
+    let OFFER = null;
+    function offerError(msg) {
+        const el = document.getElementById('oError');
+        el.textContent = msg; el.style.display = msg ? '' : 'none';
+    }
+    function calcOffer() {
+        offerError('');
+        const O = {
+            name: document.getElementById('oName').value.trim() || 'Yeni teklif',
+            net: parseFloat(document.getElementById('oNet').value),
+            month: parseInt(document.getElementById('oMonth').value, 10),
+            year: parseInt(document.getElementById('oYear').value, 10),
+            months: parseInt(document.getElementById('oDuration').value, 10),
+            tevkifat: parseFloat(document.getElementById('oTevkifat').value) || 0,
+            mode: document.getElementById('oMode').value,
+            replace: document.getElementById('oReplace').checked
+        };
+        if (!(O.net > 0)) { offerError('Lütfen istediğiniz aylık net tutarı girin.'); return; }
+        if (!(O.months > 0)) { offerError('Lütfen sözleşme süresini (ay) girin.'); return; }
+
+        const { base, removed } = offerBase(O);
+        const baseAll = base.length ? computeWith(base) : null;
+        const targetTotal = O.net * O.months;
+        const { gross, steps } = solveGross(O, O.net, base, baseAll);
+        const exact = offerOutcome(O, gross, base, baseAll);
+        const rounded = Math.ceil(gross / 1000) * 1000;
+        const roundedOut = offerOutcome(O, rounded, base, baseAll);
+
+        // Yıllara göre fark (teklifin etkisi)
+        const yearsSet = [...new Set([...(baseAll ? baseAll.list : []), ...exact.withAll.list])].sort();
+        const perYear = yearsSet.map(y => {
+            const b = baseAll && baseAll.years[y], w = exact.withAll.years[y];
+            const z = { annualRevenue: 0, annualExpense: 0, annualBagkur: 0, profit: 0, base: 0, tax: 0, net: 0 };
+            const B = b || z, W = w || z;
+            const P = yp(y);
+            // Ek kazancın girdiği dilimler
+            const before = incomeTax(B.base, P.brackets).rows, after = incomeTax(W.base, P.brackets).rows;
+            const slices = after.map((r, i) => ({ rate: r.rate, portion: r.portion - ((before[i] && before[i].portion) || 0), tax: r.tax - ((before[i] && before[i].tax) || 0) })).filter(x => x.portion > 0.005);
+            const monthsInYear = monthsIn(exact.hyp, y).length;
+            return {
+                y, estimated: P.estimated, monthsInYear, B, W, slices,
+                dRev: W.annualRevenue - B.annualRevenue, dExp: W.annualExpense - B.annualExpense, dBk: W.annualBagkur - B.annualBagkur,
+                dProfit: W.profit - B.profit, dTax: W.tax - B.tax, dNet: W.net - B.net
+            };
+        }).filter(r => Math.abs(r.dRev) > 0.005 || Math.abs(r.dNet) > 0.005);
+        const sum = k => perYear.reduce((t, r) => t + r[k], 0);
+        const s = readSettings();
+
+        // TÜBİTAK referansı ile karşılaştırma
+        const refSet = readRef();
+        const startIdx = O.year * 12 + O.month - 1;
+        const refStart = refBrutAt(startIdx, refSet);
+        const refMonths = Array.from({ length: O.months }, (_, i) => refBrutAt(startIdx + i, refSet).value);
+        const refAvg = refMonths.reduce((a, b) => a + b, 0) / O.months;
+        // Aynı dönemde TÜBİTAK çalışanının eline geçen net (ortalama)
+        const empMonths = Array.from({ length: O.months }, (_, i) => ({ idx: startIdx + i, ...employeeAt(startIdx + i, refSet) }));
+        const empAvg = empMonths.reduce((a, x) => a + x.net, 0) / O.months;
+        // Referans brütü teklif edersek sizin elinize geçen
+        const youAtRef = offerOutcome(O, refStart.value, base, baseAll).addedNet / O.months;
+        // Çalışan netine eşitlemek için gereken brüt
+        const needGross = solveGross(O, empAvg, base, baseAll).gross;
+        const ref = { set: refSet, start: refStart, avg: refAvg, empMonths, empAvg, youAtRef, needGross, needRounded: Math.ceil(needGross / 1000) * 1000 };
+
+        OFFER = {
+            O, base, removed, gross, rounded, steps, perYear, s, ref, predict: PREDICT_INFO,
+            targetTotal, achieved: exact.addedNet, roundedNet: roundedOut.addedNet,
+            dRev: sum('dRev'), dExp: sum('dExp'), dBk: sum('dBk'), dTax: sum('dTax'), dNet: sum('dNet'),
+            estimated: perYear.some(r => r.estimated)
+        };
+        PREDICT_INFO = null;
+        renderOffer();
+        saveOfferInputs();
+    }
+    function invoiceFor(gross, O, s, y) {
+        const P = yp(y);
+        const kdv = gross * s.incomeKdv, total = gross + kdv;
+        const tev = O.tevkifat && total > P.tevkifatLimit ? kdv * O.tevkifat : 0;
+        return { kdv, total, tev, kdvYou: kdv - tev, collect: gross + kdv - tev };
+    }
+    function renderOffer() {
+        const R = OFFER, O = R.O, n = O.months;
+        document.getElementById('offerResult').style.display = '';
+        document.getElementById('oGross').textContent = fc(R.gross);
+        document.getElementById('oGrossSub').textContent = `Aylık net ${fc(R.achieved / n)}`;
+        document.getElementById('oRounded').textContent = fc(R.rounded);
+        document.getElementById('oRoundedSub').textContent = `Bu teklifle aylık net ${fc(R.roundedNet / n)}`;
+        document.getElementById('oFactor').textContent = (R.gross / O.net).toLocaleString('tr-TR', { maximumFractionDigits: 3 });
+        document.getElementById('oFactorSub').textContent = `Her 1 TL net için ${(R.gross / O.net).toLocaleString('tr-TR', { maximumFractionDigits: 2 })} TL brüt`;
+        const rows = [
+            ['Brüt bedel (KDV hariç)', R.dRev / n],
+            ['− Bağ-Kur payı', -R.dBk / n],
+            ['− İşletme gideri payı', -R.dExp / n],
+            ['− Gelir vergisi payı', -R.dTax / n],
+            ['= Eline geçen net', R.dNet / n, 'total']
+        ];
+        document.getElementById('oBreakdown').innerHTML = rows.map(r => `<tr class="${r[2] || ''}"><td>${r[0]}</td><td class="num">${fc(r[1])}</td></tr>`).join('');
+        const inv = invoiceFor(R.rounded, O, R.s, O.year);
+        document.getElementById('oInvoice').innerHTML = [
+            ['Hizmet bedeli (KDV hariç)', R.rounded],
+            [`KDV (${pct(R.s.incomeKdv)})`, inv.kdv],
+            ['Fatura toplamı (KDV dahil)', inv.total, 'total'],
+            [O.tevkifat ? `Alıcının tevkif edeceği KDV (${tevText(O.tevkifat)})` : 'Tevkifat', -inv.tev],
+            ['Müşterinin size ödeyeceği', inv.collect, 'total'],
+            ['Sizin beyan edeceğiniz KDV', inv.kdvYou]
+        ].map(r => `<tr class="${r[2] || ''}"><td>${r[0]}</td><td class="num">${fc(r[1])}</td></tr>`).join('');
+        renderRefNote();
+        const notes = [];
+        if (O.mode === 'incremental') notes.push(R.base.length ? `Teklif, ${R.base.length} mevcut sözleşmenizin üzerine eklenerek hesaplandı; ek gelir ulaştığı dilimin oranıyla vergilendi.` : 'Hesaba katılacak başka sözleşme yok; teklif tek gelir olarak hesaplandı.');
+        else notes.push('Teklif tek geliriniz kabul edildi; vergi en alt dilimden başlayarak hesaplandı.');
+        if (R.removed.length) notes.push(`Aynı aylara denk gelen ${R.removed.map(c => esc(c.name)).join(', ')} hesaba katılmadı.`);
+        if (R.estimated) notes.push('Açıklanmamış yıl(lar) için dilimler ve Bağ-Kur tahmini artış oranlarıyla hesaplandı.');
+        notes.push('Net, sözleşme süresindeki aylık ortalamadır.');
+        document.getElementById('oNote').innerHTML = notes.join(' ');
+    }
+    function refFormulaLines(st) {
+        const lines = [`2025 tablo değeri (AG-${st.derece}/kademe ${st.kademe}): ${fc(st.baseVal)}`];
+        st.applied.forEach(r => lines.push(`× ${(1 + r.rate / 100).toLocaleString('tr-TR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}  (${MONTHS[r.m - 1]} ${r.y} %${r.rate.toLocaleString('tr-TR')} ${r.official ? 'resmi' : 'tahmini'})`));
+        lines.push(`= ${fc(st.value)}`);
+        return lines.join('\n');
+    }
+    function renderRefNote() {
+        const R = OFFER, F = R.ref, O = R.O, el = document.getElementById('oRefNote');
+        const lvl = `AG-${F.start.derece}/${F.start.kademe}`;
+        const pctTxt = x => '%' + Math.abs(x * 100).toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+        const vsGross = R.rounded / F.start.value - 1;
+        const youVsEmp = F.youAtRef - F.empAvg;
+        const items = [];
+        if (R.predict) items.push(`Son sözleşmeniz${R.predict.prevName ? ` (${esc(R.predict.prevName)})` : ''} bittikten sonraki dönem: <b>${MONTHS[R.predict.m - 1]} ${R.predict.y}</b>, ${O.months} ay. Tahmini teklif = TÜBİTAK referans brütü.`);
+        items.push(`${MONTHS[O.month - 1]} ${O.year} itibarıyla <b>${lvl}</b> (${AG_TITLES[F.start.derece].replace(/ \(.*\)/, '')}) <b>brüt</b> ücreti: <b>${fc(F.start.value)}</b>${Math.abs(F.avg - F.start.value) > 1 ? ` · sözleşme süresince ortalama ${fc(F.avg)}` : ''}${F.start.steps ? ` · ${F.start.steps} yıllık kademe ilerlemesi dahil` : ''}${F.start.capped ? ' · kademe tavanda' : ''}.`);
+        if (!R.predict && Math.abs(vsGross) > 0.002) items.push(`Hesaplanan teklifiniz (${fc(R.rounded)}) referans brütün <span class="${vsGross < 0 ? 'gap-neg' : 'gap-pos'}">${pctTxt(vsGross)} ${vsGross < 0 ? 'altında' : 'üstünde'}</span>.`);
+        items.push(`Bu brütle bir TÜBİTAK çalışanının eline sözleşme süresince ayda ortalama <b>${fc(F.empAvg)}</b> net geçer (SGK %14, işsizlik %1, ücret vergi tarifesi, asgari ücret istisnası, damga vergisi).`);
+        items.push(`Referans brütü teklif ederseniz şahıs firması olarak sizin elinize geçen: <b>${fc(F.youAtRef)}</b> → çalışana göre <span class="${youVsEmp < 0 ? 'gap-neg' : 'gap-pos'}">${youVsEmp < 0 ? '' : '+'}${fc(youVsEmp)}</span>.`);
+        items.push(`<b>Aslında almanız gereken</b> (çalışanla aynı neti elde etmek için): <b>${fc(F.needRounded)}</b> brüt (KDV hariç)${Math.abs(F.needRounded - F.start.value) > 500 ? `, referansın ${F.needRounded > F.start.value ? fc(F.needRounded - F.start.value) + ' üstü' : fc(F.start.value - F.needRounded) + ' altı'}` : ', yani referansla neredeyse aynı'}.`);
+        const E = equivalentLevel(R.rounded, startIdx0(O));
+        items.push(`<b>Teklifinizin TÜBİTAK karşılığı:</b> ${eqSentence(E)}${E.ownYears !== undefined && !E.below && !E.above ? ` Sizin bu tarihteki deneyiminiz ≈ ${yearsTxt(E.ownYears)} yıl${Math.abs(E.years - E.ownYears) > 0.3 ? ` → teklif, deneyiminizin <span class="${E.years < E.ownYears ? 'gap-neg' : 'gap-pos'}">${yearsTxt(Math.abs(E.years - E.ownYears))} yıl ${E.years < E.ownYears ? 'altında' : 'üstünde'}</span>` : ''}.` : ''}`);
+        items.push('<span class="small">Not: Çalışanın işveren SGK primi (emeklilik tavana kadar işler), kıdem tazminatı ve ücretli izin gibi hakları bu karşılaştırmada yoktur; Bağ-Kur en düşük tabandan ödeniyorsa emeklilik birikiminiz daha düşüktür.</span>');
+        el.innerHTML = `<h6><i class="fas fa-info-circle me-1"></i>TÜBİTAK referansı ile karşılaştırma</h6><ul>${items.map(x => `<li>${x}</li>`).join('')}</ul>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <button class="btn btn-sm btn-warning" onclick="useRefNet('emp')"><i class="fas fa-user-tie me-1"></i>Çalışan netini hedefle</button>
+                <button class="btn btn-sm btn-outline-dark" onclick="useRefNet('ref')"><i class="fas fa-equals me-1"></i>Referans brütü teklif et</button>
+            </div>`;
+        el.style.display = '';
+    }
+    const startIdx0 = O => O.year * 12 + O.month - 1;
+    function useRefNet(kind) {
+        if (!OFFER) return;
+        document.getElementById('oNet').value = Math.round(kind === 'emp' ? OFFER.ref.empAvg : OFFER.ref.youAtRef);
+        calcOffer();
+    }
+    function buildOfferReport(R) {
+        const O = R.O, s = R.s, n = O.months, h = [];
+        const end = contractEnd({ year: O.year, month: O.month, months: O.months });
+        if (PROFILE && (PROFILE.company || PROFILE.name)) h.push(`<p class="mb-1"><b>${esc(PROFILE.company || PROFILE.name)}</b></p>`);
+        h.push(`<p class="text-muted">Bu rapor, istenen aylık nete ulaşmak için verilmesi gereken brüt teklifin nasıl bulunduğunu adım adım gösterir. Oluşturulma: ${new Date().toLocaleString('tr-TR')}</p>`);
+        if (R.estimated) h.push(`<p class="text-warning fw-bold">Açıklanmamış yıl(lar) için vergi dilimleri %${fn(futureRates().br * 100)}, asgari ücret (Bağ-Kur) %${fn(futureRates().mw * 100)} yıllık artışla tahmin edilmiştir.</p>`);
+
+        h.push('<h5>1. Girdiler</h5>');
+        h.push(`<div class="formula">Teklif: ${esc(O.name)}\nDönem: ${ym(O.year, O.month)} – ${ym(end.year, end.month)} (${n} ay)\nİstenen aylık net: ${fc(O.net)} → toplam hedef net ${fc(R.targetTotal)}\nKDV oranı: ${pct(s.incomeKdv)} · Tevkifat: ${O.tevkifat ? tevText(O.tevkifat) : 'yok'}\nBağ-Kur: ${s.bagkurType === 'yok' ? 'ödenmiyor' : (s.bagkurType === 'indirimli' ? '5 puan indirimli' : 'standart') + ', asgari ücretin ' + s.bagkurMult + ' katı'}\nYöntem: ${O.mode === 'incremental' ? 'Mevcut sözleşmelerle birlikte' : 'Tek gelir'}</div>`);
+        if (O.mode === 'incremental') {
+            h.push(`<p class="small">Hesaba katılan mevcut sözleşmeler: ${R.base.length ? R.base.map(c => `${esc(c.name)} (${ym(c.year, c.month)}, ${c.months} ay, ${fc(c.amount)})`).join('; ') : 'yok'}.${R.removed.length ? ` Aynı aylara denk geldiği için çıkarılanlar: ${R.removed.map(c => esc(c.name)).join(', ')}.` : ''}</p>`);
+        }
+
+        h.push('<h5>2. Net nasıl tanımlandı?</h5>');
+        h.push(`<p class="small">Teklifin size bıraktığı net = (teklif eklendiğinde tüm yılların toplam neti) − (teklif olmadan toplam net). Böylece teklifin getirdiği gelir, mevcut gelirinizin üzerine eklenip ulaştığı dilimin oranıyla vergilenir; teklif yeni aylarda iş yapmanızı gerektiriyorsa o ayların Bağ-Kur primi ve giderleri de teklife yüklenir. Hedef: bu fark ${n} ay boyunca aylık ${fc(O.net)}, yani toplam ${fc(R.targetTotal)} olmalı.</p>`);
+
+        h.push('<h5>3. Brüt bedel nasıl bulundu?</h5>');
+        h.push(`<p class="small">Artan oranlı vergide brütü tek bir formülle bulmak mümkün olmadığından ikiye bölme (deneme-yanılma) yöntemi kullanıldı: sistem bir brüt bedel dener, tüm vergileri baştan hesaplar; ortaya çıkan net hedefin altındaysa bedeli artırır, üstündeyse azaltır. ${R.steps} denemede kuruş hassasiyetinde eşitlendi.</p>`);
+        h.push(`<div class="formula">Bulunan brüt aylık bedel (KDV hariç): ${fc(R.gross)}\nBu bedelle toplam net: ${fc(R.achieved)} → aylık ${fc(R.achieved / n)}\nÖnerilen yuvarlanmış teklif (1.000 TL'ye yukarı): ${fc(R.rounded)} → aylık net ${fc(R.roundedNet / n)}\nBrüt / net katsayısı: ${(R.gross / O.net).toLocaleString('tr-TR', { maximumFractionDigits: 4 })}</div>`);
+
+        h.push('<h5>4. Doğrulama: yıllara göre teklifsiz ve teklifli hesap</h5>');
+        h.push('<table class="table table-sm table-bordered"><thead><tr><th>Yıl</th><th></th><th class="num">Ciro</th><th class="num">Gider</th><th class="num">Bağ-Kur</th><th class="num">Matrah</th><th class="num">Gelir vergisi</th><th class="num">Net</th></tr></thead><tbody>');
+        R.perYear.forEach(r => {
+            const line = (lbl, X) => `<td>${lbl}</td><td class="num">${fc(X.annualRevenue)}</td><td class="num">${fc(X.annualExpense)}</td><td class="num">${fc(X.annualBagkur)}</td><td class="num">${fc(X.base)}</td><td class="num">${fc(X.tax)}</td><td class="num">${fc(X.net)}</td>`;
+            h.push(`<tr><td rowspan="3"><b>${r.y}</b>${r.estimated ? '<br><small>tahmini</small>' : ''}<br><small>${r.monthsInYear} ay</small></td>${line('Teklifsiz', r.B)}</tr>`);
+            h.push(`<tr>${line('Teklifli', r.W)}</tr>`);
+            h.push(`<tr class="fw-bold"><td>Fark</td><td class="num">${fc(r.dRev)}</td><td class="num">${fc(r.dExp)}</td><td class="num">${fc(r.dBk)}</td><td class="num">${fc(r.W.base - r.B.base)}</td><td class="num">${fc(r.dTax)}</td><td class="num">${fc(r.dNet)}</td></tr>`);
+        });
+        h.push(`<tr class="fw-bold"><td colspan="2">Toplam fark</td><td class="num">${fc(R.dRev)}</td><td class="num">${fc(R.dExp)}</td><td class="num">${fc(R.dBk)}</td><td></td><td class="num">${fc(R.dTax)}</td><td class="num">${fc(R.dNet)}</td></tr></tbody></table>`);
+        h.push(`<div class="formula">Toplam ek net ${fc(R.dNet)} ÷ ${n} ay = ${fc(R.dNet / n)} ✓ (hedef ${fc(O.net)})</div>`);
+
+        h.push('<h5>5. Teklifin geliri hangi dilimlerden vergilendi?</h5>');
+        R.perYear.forEach(r => {
+            if (!r.slices.length) { h.push(`<p class="small">${r.y}: ek vergi yok.</p>`); return; }
+            h.push(`<div class="formula">${r.y}${r.estimated ? ' (tahmini dilimler)' : ''}\n${r.slices.map(x => `%${Math.round(x.rate * 100)} dilimi: ${fc(x.portion)} × %${Math.round(x.rate * 100)} = ${fc(x.tax)}`).join('\n')}\nToplam ek vergi: ${fc(r.dTax)}   (ek kâra göre efektif oran ${pct(r.dProfit > 0 ? r.dTax / r.dProfit : 0)})</div>`);
+        });
+
+        h.push('<h5>6. Aylık ortalama döküm</h5>');
+        h.push(`<div class="formula">Brüt bedel                ${fc(R.dRev / n)}\n− Bağ-Kur payı            ${fc(R.dBk / n)}\n− İşletme gideri payı     ${fc(R.dExp / n)}\n− Gelir vergisi payı      ${fc(R.dTax / n)}\n= Net                     ${fc(R.dNet / n)}</div>`);
+        h.push('<p class="small text-muted">Vergi yılın başında düşük, dilim atladıkça yüksek ödendiği için aylık gerçek net aydan aya değişir; tablo ortalamayı gösterir.</p>');
+
+        h.push('<h5>7. Fatura, KDV ve tevkifat (önerilen teklifle)</h5>');
+        const inv = invoiceFor(R.rounded, O, s, O.year);
+        h.push(`<div class="formula">Hizmet bedeli (KDV hariç)        ${fc(R.rounded)}\nKDV ${pct(s.incomeKdv)}                         ${fc(inv.kdv)}\nFatura toplamı (KDV dahil)       ${fc(inv.total)}\n${O.tevkifat ? `Alıcının tevkif edeceği (${tevText(O.tevkifat)})   − ${fc(inv.tev)}` : 'Tevkifat yok'}\nMüşterinin size ödeyeceği        ${fc(inv.collect)}\nSizin beyan edeceğiniz KDV       ${fc(inv.kdvYou)}\n\n${n} aylık toplam: bedel ${fc(R.rounded * n)}, müşteriden tahsilat ${fc(inv.collect * n)}</div>`);
+        h.push('<p class="small text-muted">KDV gelir vergisi hesabını etkilemez; müşteriden tahsil edilip vergi dairesine aktarılır.</p>');
+
+        // TÜBİTAK referansı
+        const F = R.ref, st = F.start, set = F.set;
+        h.push('<h5>8. TÜBİTAK referansı ile karşılaştırma</h5>');
+        if (R.predict) h.push(`<p class="small">Bu teklif "Bir sonraki teklifimi tahmin et" ile hazırlandı: son sözleşme${R.predict.prevName ? ` (${esc(R.predict.prevName)})` : ''} bittikten sonraki ${MONTHS[R.predict.m - 1]} ${R.predict.y} dönemi için teklif, TÜBİTAK referans brüt ücretine eşitlendi.</p>`);
+        h.push(`<p class="small">Referans: AG-${set.derece} (${AG_TITLES[set.derece].replace(/ \(.*\)/, '')}), ${MONTHS[set.month - 1]} ${set.year} tarihinde kademe ${set.kademe}. ${set.progress ? `Her 12 ayda bir kademe ilerlediği varsayıldı; ${MONTHS[O.month - 1]} ${O.year} itibarıyla ${st.steps} kademe ilerlemeyle kademe ${st.kademe}${st.capped ? ' (tavan)' : ''}.` : 'Kademe ilerlemesi uygulanmadı.'} Tablodaki 2025 brüt rakamları ${set.table === 'H2' ? 'Temmuz–Aralık 2025' : 'Ocak–Haziran 2025'} dönemine ait kabul edildi; sonraki artışların memur zamlarıyla aynı oranda yapıldığı varsayıldı.</p>`);
+        h.push(`<div class="formula">${MONTHS[O.month - 1]} ${O.year} referans brüt ücreti:\n${refFormulaLines(st)}${Math.abs(F.avg - st.value) > 1 ? `\nSözleşme süresince (${n} ay) ortalama referans brüt: ${fc(F.avg)}` : ''}</div>`);
+        h.push('<p class="small"><b>Aynı brütle TÜBİTAK çalışanının neti:</b> brüt − SGK işçi payı %14 − işsizlik %1 (SGK tavanına kadar) − gelir vergisi (ücret tarifesi, yıl içinde kümülatif; asgari ücrete isabet eden vergi istisna) − damga vergisi (binde 7,59; asgari ücret kısmı istisna).</p>');
+        h.push('<table class="table table-sm table-bordered"><thead><tr><th>Ay</th><th class="num">Brüt</th><th class="num">SGK + işsizlik</th><th class="num">Vergi matrahı</th><th class="num">Gelir vergisi</th><th class="num">GV istisnası</th><th class="num">Damga v.</th><th class="num">Çalışan neti</th></tr></thead><tbody>');
+        F.empMonths.forEach(x => { const y = Math.floor(x.idx / 12); h.push(`<tr><td>${MONTHS[x.m - 1]} ${y}${x.estimated ? '*' : ''}</td><td class="num">${fc(x.brut)}</td><td class="num">${fc(x.sgk + x.isz)}</td><td class="num">${fc(x.matrah)}</td><td class="num">${fc(x.gv)}</td><td class="num">${fc(x.gvIst)}</td><td class="num">${fc(x.dv)}</td><td class="num">${fc(x.net)}</td></tr>`); });
+        h.push(`<tr class="fw-bold"><td>Ortalama</td><td class="num">${fc(F.avg)}</td><td colspan="5"></td><td class="num">${fc(F.empAvg)}</td></tr></tbody></table>`);
+        h.push('<p class="small text-muted">Çalışanın gelir vergisi yılbaşında sıfırdan başlayıp birikerek arttığı için aylık net, yılın ilk aylarında yüksek, sonra düşüktür. * tahmini yıl.</p>');
+        const yve = F.youAtRef - F.empAvg;
+        h.push(`<div class="formula">Referans brütü (${fc(st.value)}) teklif ederseniz sizin aylık netiniz: ${fc(F.youAtRef)}\nAynı dönemde TÜBİTAK çalışanının ortalama neti:      ${fc(F.empAvg)}\nFark: ${yve >= 0 ? '+' : '−'}${fc(Math.abs(yve))} (${yve >= 0 ? 'lehinize' : 'aleyhinize'})\n\nÇalışanla aynı neti elde etmek için gereken brüt: ${fc(F.needGross)} → yuvarlanmış ${fc(F.needRounded)}\nBu teklifte hesaplanan brüt: ${fc(R.gross)} (yuvarlanmış ${fc(R.rounded)})</div>`);
+        const E = equivalentLevel(R.rounded, startIdx0(O));
+        h.push('<p class="small mt-3"><b>Teklifin TÜBİTAK karşılığı (kaç yıllık çalışana denk?)</b> Asgari sürelerde terfi edilen ve her yıl bir kademe ilerlenen tipik kariyer yolu esas alındı: 0–2 yıl Araştırmacı (AG-6), 3–4 Uzman (AG-5), 5–8 Kıdemli Uzman (AG-4), 9–12 Başuzman (AG-3), 13–18 Kıdemli Başuzman (AG-2).</p>');
+        h.push(`<p class="small">${eqSentence(E)}${E.ownYears !== undefined ? ` Referans ayarlarına göre sizin bu tarihteki deneyiminiz ≈ ${yearsTxt(E.ownYears)} yıl.` : ''}</p>`);
+        const near = E.path.filter(x => Math.abs(x.years - (E.years || 0)) <= 2.5);
+        h.push('<table class="table table-sm table-bordered"><thead><tr><th>Deneyim</th><th>Seviye</th><th class="num">Brüt (' + MONTHS[E.idx % 12] + ' ' + Math.floor(E.idx / 12) + ')</th></tr></thead><tbody>' +
+            near.map(x => `<tr${x === E.lo || x === E.hi ? ' class="fw-bold"' : ''}><td>${x.years} yıl</td><td>${lvlName(x)} ${AG_TITLES[x.d].replace(/ \(.*\)/, '')}</td><td class="num">${fc(x.value)}</td></tr>`).join('') +
+            `<tr class="table-warning"><td colspan="2">Teklifiniz</td><td class="num">${fc(E.amount)}</td></tr></tbody></table>`);
+        h.push('<p class="small text-muted">Karşılaştırmaya dahil olmayanlar: çalışan için işverenin ödediği SGK primi ve emekliliğe etkisi, kıdem tazminatı, ücretli izin ve diğer yan haklar. Şahıs firması tarafında ise belgeli giderler kazançtan düşülebilir. Tahmini oranlar (*) açıklandıkça güncellenmelidir. Bu rapor bilgilendirme amaçlı bir tahmindir; kesin hesap için mali müşavirinize danışın.</p>');
+        return h.join('');
+    }
+    function openOfferReport() {
+        if (!OFFER) return;
+        showReportModal({ title: `Brüt Teklif Raporu — ${OFFER.O.name}`, html: buildOfferReport(OFFER), filename: `brut-teklif-raporu.pdf` });
+    }
+    function addOfferAsContract() {
+        if (!OFFER) return;
+        const O = OFFER.O;
+        if (OFFER.removed.length && O.mode === 'incremental' &&
+            !confirm(`Bu teklif, aynı aylardaki ${OFFER.removed.map(c => c.name).join(', ')} sözleşmesinin yerine hesaplandı. Eklerseniz o sözleşme(ler) de listede kalır ve gelir iki kez sayılır. Yine de eklensin mi?`)) return;
+        contracts.push({ id: Date.now(), name: O.name, amount: OFFER.rounded, months: O.months, month: O.month, year: O.year, tevkifat: O.tevkifat });
+        renderContracts(); updateCalculations();
+        offerError('');
+        alert(`"${O.name}" ${fc(OFFER.rounded)} aylık bedelle sözleşmelere eklendi.`);
+    }
+    const OFFER_FIELDS = ['oName', 'oNet', 'oMonth', 'oYear', 'oDuration', 'oTevkifat', 'oMode'];
+    function saveOfferInputs() {
+        if (!STORAGE_UID) return;
+        save();
+    }
+
+    // ---------- Sözleşme / gider işlemleri ----------
+    function addContract() {
+        const name = document.getElementById('cName').value.trim();
+        const amount = parseFloat(document.getElementById('cAmount').value);
+        if (!name || !(amount > 0)) { alert('Lütfen sözleşme adı ve geçerli bir tutar girin!'); return; }
+        const months = parseInt(document.getElementById('cDuration').value, 10);
+        if (!(months > 0)) { alert('Lütfen sözleşme süresini (ay) girin!'); return; }
+        contracts.push({
+            id: Date.now(), name, amount, months,
+            month: parseInt(document.getElementById('cMonth').value, 10),
+            year: parseInt(document.getElementById('cYear').value, 10),
+            tevkifat: parseFloat(document.getElementById('cTevkifat').value) || 0
+        });
+        ['cName', 'cAmount'].forEach(id => document.getElementById(id).value = '');
+        renderContracts(); updateCalculations();
+    }
+    function removeContract(id) { contracts = contracts.filter(c => c.id !== id); renderContracts(); updateCalculations(); }
+
+    function renderContracts() {
+        const body = document.getElementById('contractBody');
+        if (!contracts.length) { body.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-3">Henüz sözleşme eklenmedi</td></tr>'; return; }
+        const sorted = [...contracts].sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
+        body.innerHTML = sorted.map(c => {
+            const e = contractEnd(c);
+            return `<tr>
+                <td class="fw-bold">${esc(c.name)}</td>
+                <td class="num">${fc(c.amount)}</td>
+                <td style="white-space:nowrap">${ym(c.year, c.month)} – ${ym(e.year, e.month)}</td>
+                <td>${c.months} ay</td>
+                <td>${c.tevkifat ? `<span class="type-badge t-gv">${tevText(c.tevkifat)}</span>` : '<span class="text-muted">—</span>'}</td>
+                <td>${contractYears(c).map(x => `${x.y}: ${x.n} ay`).join(' · ')}</td>
+                <td style="white-space:nowrap">${eqBadge(c.amount, monthIdx(c))}</td>
+                <td class="num fw-bold">${fc(c.months * c.amount)}</td>
+                <td><button class="delete-btn" title="Sil" onclick="removeContract(${c.id})"><i class="fas fa-trash-alt"></i></button></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function addExpense() {
+        const name = document.getElementById('expenseName').value.trim();
+        const amount = parseFloat(document.getElementById('expenseAmount').value);
+        if (!name || !(amount > 0)) { alert('Lütfen gider adı ve geçerli bir tutar girin!'); return; }
+        const yv = document.getElementById('expenseYear').value;
+        expenses.push({
+            id: Date.now(), name, amount,
+            period: document.getElementById('expensePeriod').value,
+            kdv: parseFloat(document.getElementById('expenseKdv').value),
+            year: yv === 'all' ? 'all' : Number(yv)
+        });
+        document.getElementById('expenseName').value = '';
+        document.getElementById('expenseAmount').value = '';
+        renderExpenses(); updateCalculations();
+    }
+    function removeExpense(id) { expenses = expenses.filter(e => e.id !== id); renderExpenses(); updateCalculations(); }
+
+    function renderExpenses() {
+        const body = document.getElementById('expenseTableBody');
+        if (!expenses.length) { body.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">Henüz gider eklenmedi</td></tr>'; return; }
+        body.innerHTML = expenses.map(e => `<tr>
+            <td class="fw-bold">${esc(e.name)}</td><td class="num">${fc(e.amount)}</td>
+            <td><span class="badge bg-info">${periodText(e.period)}</span></td>
+            <td>${e.year === 'all' ? 'Tüm yıllar' : e.year}</td>
+            <td>${e.kdv ? pct(e.kdv) : '—'}</td>
+            <td class="num text-success fw-bold">${fc(monthlyEq(e.amount, e.period))}</td>
+            <td><button class="delete-btn" title="Sil" onclick="removeExpense(${e.id})"><i class="fas fa-trash-alt"></i></button></td>
+        </tr>`).join('');
+    }
+
+    // ---------- Kayıt (tarayıcı önbelleği + Firestore) ----------
+    const KEY = 'sahisFirmaHesapV4';
+    let STORAGE_UID = null;                          // giriş yapan kullanıcının kimliği
+    let PROFILE = {};                                // profil / firma bilgileri
+    let CLOUD_READY = false;                         // Firestore verisi yüklendi mi
+    const storageKey = () => KEY + '_' + STORAGE_UID;
+    const FIELDS = ['incomeKdv', 'bagkurType', 'bagkurMult', 'otherIncome', 'futureBr', 'futureMw'];
+
+    function getState() {
+        const d = { contracts, expenses, young: document.getElementById('youngEntrepreneur').checked };
+        FIELDS.forEach(f => d[f] = document.getElementById(f).value);
+        d.offer = {};
+        OFFER_FIELDS.forEach(f => d.offer[f] = document.getElementById(f).value);
+        d.offer.oReplace = document.getElementById('oReplace').checked;
+        d.ref = getRefState();
+        return JSON.parse(JSON.stringify(d));        // Firestore için düz nesne
+    }
+    function applyState(d) {
+        if (!d) return;
+        contracts = Array.isArray(d.contracts) ? d.contracts.filter(c => c.months && c.year && c.month) : [];
+        expenses = Array.isArray(d.expenses) ? d.expenses.map(e => ({ ...e, year: e.year === undefined ? 'all' : e.year })) : [];
+        FIELDS.forEach(f => { if (d[f] !== undefined && d[f] !== '') document.getElementById(f).value = d[f]; });
+        document.getElementById('youngEntrepreneur').checked = !!d.young;
+        if (d.offer) {
+            OFFER_FIELDS.forEach(f => { if (d.offer[f] !== undefined && d.offer[f] !== '') document.getElementById(f).value = d.offer[f]; });
+            if (d.offer.oReplace !== undefined) document.getElementById('oReplace').checked = !!d.offer.oReplace;
+        }
+        if (d.ref) applyRefState(d.ref);
+    }
+    // Tarayıcıda kayıtlı veri. Giriş sisteminden önceki sürümün verileri yalnızca bir kez,
+    // bu tarayıcıda daha önce hiç kimse giriş yapmamışsa ilk girene aktarılır ve sonra silinir.
+    const LEGACY_KEYS = [KEY, 'sahisFirmaHesap2026v3'];
+    function readLocal() {
+        try {
+            const own = JSON.parse(localStorage.getItem(storageKey()) || 'null');
+            if (own) { LEGACY_KEYS.forEach(k => localStorage.removeItem(k)); return own; }
+            const someoneLoggedIn = Object.keys(localStorage).some(k => k.startsWith(KEY + '_') && k !== storageKey());
+            let d = null;
+            if (!someoneLoggedIn) d = readLegacy();
+            LEGACY_KEYS.forEach(k => localStorage.removeItem(k));   // eski veriler kimseye tekrar aktarılmasın
+            return d;
+        } catch (e) { return null; }
+    }
+    function readLegacy() {
+        try {
+            let d = JSON.parse(localStorage.getItem(KEY) || 'null');
+            if (!d) {
+                const old = JSON.parse(localStorage.getItem('sahisFirmaHesap2026v3') || 'null');
+                if (old) {
+                    d = {
+                        contracts: old.contracts, young: old.young, incomeKdv: old.incomeKdv, otherIncome: old.otherIncome,
+                        expenses: (old.expenses || []).map(e => ({ ...e, year: 2026 })),
+                        bagkurType: { '0.3075': 'indirimli', '0.3575': 'standart', '0': 'yok' }[old.bagkurType] || 'indirimli',
+                        bagkurMult: old.bagkurBase ? Math.max(1, Math.round(old.bagkurBase / 33030 * 10) / 10) : 1
+                    };
+                }
+            }
+            return d;
+        } catch (e) { return null; }
+    }
+
+    // Senkron durumu
+    function setSync(text, isErr) {
+        const el = document.getElementById('syncStatus');
+        el.innerHTML = text;
+        el.classList.toggle('err', !!isErr);
+    }
+    let lastSyncAt = null;
+    function markSynced() {
+        lastSyncAt = new Date();
+        const t = lastSyncAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        setSync(`<i class="fas fa-cloud me-1"></i>Kaydedildi ${t}`);
+        document.getElementById('pLastSync').textContent = lastSyncAt.toLocaleString('tr-TR');
+    }
+
+    let cloudTimer = null;
+    function scheduleCloudSave() {
+        if (!CLOUD_READY || !window.cloudSaveCalc) return;
+        clearTimeout(cloudTimer);
+        setSync('<i class="fas fa-circle-notch fa-spin me-1"></i>Kaydediliyor…');
+        cloudTimer = setTimeout(cloudSaveNow, 1200);
+    }
+    async function cloudSaveNow() {
+        clearTimeout(cloudTimer);
+        if (!STORAGE_UID || !window.cloudSaveCalc) return;
+        setSync('<i class="fas fa-circle-notch fa-spin me-1"></i>Kaydediliyor…');
+        try { await window.cloudSaveCalc(getState()); markSynced(); }
+        catch (e) { console.error(e); setSync('<i class="fas fa-exclamation-triangle me-1"></i>Buluta kaydedilemedi' + cloudErr(e), true); }
+    }
+    function cloudErr(e) {
+        const c = e && e.code;
+        if (c === 'permission-denied') return ' (Firestore kuralları izin vermiyor)';
+        if (c === 'unavailable') return ' (bağlantı yok, tekrar denenecek)';
+        if (c === 'not-found' || c === 'failed-precondition') return ' (Firestore veritabanı oluşturulmamış)';
+        return c ? ` (${c})` : '';
+    }
+
+    function save() {
+        if (!STORAGE_UID) return;                    // giriş yapılmadan kaydetme
+        const d = getState();
+        try { localStorage.setItem(storageKey(), JSON.stringify(d)); } catch (e) {}
+        scheduleCloudSave();
+        renderProfileData();
+    }
+
+    // ---------- DASHBOARD ----------
+    const VIZ = { s1: '#2a78d6', s2: '#eb6834', s3: '#1baf7a', s4: '#eda100', muted: '#898781', grid: '#e1e0d9', base: '#c3c2b7', surface: '#fcfcfb' };
+    const MON3 = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+    const tl0 = n => fn(Math.round(n)) + ' TL';
+    function shortTL(n) {
+        const a = Math.abs(n);
+        if (a >= 1e6) return (n / 1e6).toLocaleString('tr-TR', { maximumFractionDigits: 1 }) + ' mn';
+        if (a >= 1e3) return Math.round(n / 1e3).toLocaleString('tr-TR') + ' bin';
+        return Math.round(n).toLocaleString('tr-TR');
+    }
+    function niceMax(max, ticks = 4) {
+        if (max <= 0) return { max: 1, step: 1 };
+        const raw = max / ticks, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+        const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(st => st >= raw);
+        return { max: Math.ceil(max / step) * step, step };
+    }
+    const svgEl = (w, h, inner) => `<svg viewBox="0 0 ${w} ${h}" role="img" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+    function legendHtml(series, line) {
+        return series.map(se => `<span><i class="${line ? 'line' : ''}" style="background:${se.color}"></i>${esc(se.name)}</span>`).join('');
+    }
+    function tipShow(ev, html) {
+        const t = document.getElementById('vizTip');
+        t.innerHTML = html; t.style.display = 'block';
+        const pad = 14, w = t.offsetWidth, h = t.offsetHeight;
+        let x = ev.clientX + pad, y = ev.clientY + pad;
+        if (x + w > window.innerWidth - 8) x = ev.clientX - w - pad;
+        if (y + h > window.innerHeight - 8) y = ev.clientY - h - pad;
+        t.style.left = x + 'px'; t.style.top = y + 'px';
+    }
+    function tipHide() { document.getElementById('vizTip').style.display = 'none'; }
+    function tipRows(title, rows, total) {
+        return `<div class="t">${title}</div>` + rows.map(r => `<div class="r"><span><i style="background:${r.color}"></i>${esc(r.name)}</span><b>${r.value === null ? '—' : tl0(r.value)}</b></div>`).join('') +
+            (total !== undefined ? `<div class="r tot"><span>Toplam</span><span>${tl0(total)}</span></div>` : '');
+    }
+    // Bir hedefin hit alanlarına tooltip bağla
+    function bindTips(el, tipFor, onMove) {
+        el.querySelectorAll('[data-i]').forEach(r => {
+            const i = +r.dataset.i;
+            r.addEventListener('mousemove', ev => { tipShow(ev, tipFor(i)); onMove && onMove(i, true); });
+            r.addEventListener('mouseleave', () => { tipHide(); onMove && onMove(i, false); });
+            r.addEventListener('click', ev => tipShow(ev, tipFor(i)));
+        });
+    }
+    function tableHtml(head, rows) {
+        return `<table class="table table-sm"><thead><tr>${head.map((h, i) => `<th class="${i ? 'num' : ''}">${h}</th>`).join('')}</tr></thead><tbody>` +
+            rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('') + '</tbody></table>';
+    }
+
+    // Yığılmış sütun grafiği: her segment arasında 2px yüzey boşluğu, en üst segmentte 4px yuvarlak uç
+    const vizW = el => Math.max(300, Math.min(820, el.clientWidth || 640));
+    function stackedColumns(el, cats, series, opts = {}) {
+        const W = vizW(el), H = opts.height || (W < 480 ? 220 : 250), L = 52, R = 8, T = 10, B = 26, pw = W - L - R, ph = H - T - B;
+        const totals = cats.map((_, i) => series.reduce((a, se) => a + Math.max(0, se.values[i] || 0), 0));
+        const { max, step } = niceMax(Math.max(...totals, 1));
+        const y = v => T + ph - (v / max) * ph, band = pw / cats.length, bw = Math.min(opts.barMax || 24, band * 0.62);
+        let g = '';
+        for (let v = 0; v <= max + 1e-9; v += step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? VIZ.base : VIZ.grid}" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${shortTL(v)}</text>`;
+        let bars = '', hits = '';
+        cats.forEach((c, i) => {
+            const x = L + band * i + (band - bw) / 2;
+            let acc = 0;
+            const segs = series.map(se => ({ v: Math.max(0, se.values[i] || 0), color: se.color })).filter(sg => sg.v > 0);
+            segs.forEach((sg, k) => {
+                const y0 = y(acc), y1 = y(acc + sg.v), top = k === segs.length - 1;
+                // Alttaki segmentler üstte 2px yüzey boşluğu bırakır; en üst segmentin ucu 4px yuvarlak
+                const hgt = Math.max(0, y0 - y1 - (top ? 0 : 2));
+                if (hgt > 0) {
+                    if (top) {
+                        const r = Math.min(4, hgt, bw / 2);
+                        bars += `<path d="M${x},${y0} V${y1 + r} Q${x},${y1} ${x + r},${y1} H${x + bw - r} Q${x + bw},${y1} ${x + bw},${y1 + r} V${y0} Z" fill="${sg.color}"/>`;
+                    } else bars += `<rect x="${x}" y="${y1 + 2}" width="${bw}" height="${hgt}" fill="${sg.color}"/>`;
+                }
+                acc += sg.v;
+            });
+            hits += `<rect class="hit" data-i="${i}" x="${L + band * i}" y="${T}" width="${band}" height="${ph}"/>`;
+            const every = opts.labelEvery || Math.max(1, Math.ceil(cats.length / (W / 46)));
+            if (i % every === 0) bars += `<text x="${L + band * i + band / 2}" y="${H - 8}" text-anchor="middle">${c}</text>`;
+        });
+        el.innerHTML = svgEl(W, H, g + bars + hits);
+        bindTips(el, i => tipRows(opts.tipTitle ? opts.tipTitle(i) : cats[i], series.map(se => ({ name: se.name, color: se.color, value: se.values[i] || 0 })), totals[i]));
+    }
+
+    // Basamaklı çizgi grafiği + dikey imleç
+    function stepLines(el, xs, series, opts = {}) {
+        const W = vizW(el), H = opts.height || (W < 480 ? 220 : 250), L = 52, R = 12, T = 12, B = 26, pw = W - L - R, ph = H - T - B;
+        const all = series.flatMap(se => se.values.filter(v => v !== null && v !== undefined));
+        const minRaw = Math.min(...all), maxRaw = Math.max(...all);
+        const nm = niceMax(maxRaw);
+        let min = Math.max(0, Math.floor(minRaw * 0.8 / nm.step) * nm.step);
+        const max = nm.max, step = nm.step;
+        const n = xs.length, cw = pw / n;
+        const x = i => L + cw * i, y = v => T + ph - ((v - min) / (max - min)) * ph;
+        let g = '';
+        for (let v = min; v <= max + 1e-9; v += step) g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${v === min ? VIZ.base : VIZ.grid}" stroke-width="1"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${shortTL(v)}</text>`;
+        let paths = '';
+        series.forEach(se => {
+            let d = '', pen = false;
+            se.values.forEach((v, i) => {
+                if (v === null || v === undefined) { pen = false; return; }
+                d += pen ? ` H${x(i)} V${y(v)} H${x(i) + cw}` : ` M${x(i)},${y(v)} H${x(i) + cw}`;
+                pen = true;
+            });
+            paths += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+            // son değerde uç noktası
+            const li = se.values.map((v, i) => v === null || v === undefined ? -1 : i).filter(i => i >= 0).pop();
+            if (li !== undefined) paths += `<circle cx="${x(li) + cw}" cy="${y(se.values[li])}" r="4" fill="${se.color}" stroke="${VIZ.surface}" stroke-width="2"/>`;
+        });
+        let labels = '';
+        const every = Math.max(1, Math.ceil(n / (W / 64)));
+        xs.forEach((lbl, i) => { if (i % every === 0) labels += `<text x="${x(i) + cw / 2}" y="${H - 8}" text-anchor="middle">${lbl}</text>`; });
+        if (opts.markIdx !== undefined && opts.markIdx >= 0 && opts.markIdx < n) labels += `<line x1="${x(opts.markIdx)}" x2="${x(opts.markIdx)}" y1="${T}" y2="${T + ph}" stroke="${VIZ.base}" stroke-width="1"/><text x="${x(opts.markIdx) + 4}" y="${T + 10}" text-anchor="start">bugün</text>`;
+        let hits = '', cross = `<line id="${el.id}_x" x1="0" x2="0" y1="${T}" y2="${T + ph}" stroke="${VIZ.muted}" stroke-width="1" style="display:none"/>`;
+        xs.forEach((_, i) => hits += `<rect class="hit" data-i="${i}" x="${x(i)}" y="${T}" width="${cw}" height="${ph}"/>`);
+        el.innerHTML = svgEl(W, H, g + paths + labels + cross + hits);
+        const cl = el.querySelector(`#${el.id}_x`);
+        bindTips(el, i => tipRows(opts.tipTitle ? opts.tipTitle(i) : xs[i], series.map(se => ({ name: se.name, color: se.color, value: se.values[i] ?? null }))) + (opts.tipExtra ? opts.tipExtra(i) : ''),
+            (i, on) => { cl.style.display = on ? '' : 'none'; if (on) { cl.setAttribute('x1', x(i) + cw / 2); cl.setAttribute('x2', x(i) + cw / 2); } });
+    }
+
+    let DASH_YEAR = null;
+    function renderDashboard() {
+        if (!ALL || document.getElementById('dashboardView').style.display === 'none') return;
+        const sel = document.getElementById('dashYear');
+        const want = DASH_YEAR || CURRENT_YEAR;            // kullanıcı seçmediyse içinde bulunulan yıl
+        sel.innerHTML = ALL.list.map(y => `<option value="${y}">${y}${yp(y).estimated ? ' (tahmini)' : ''}</option>`).join('');
+        sel.value = ALL.list.includes(want) ? want : (ALL.list.includes(CURRENT_YEAR) ? CURRENT_YEAR : ALL.list[ALL.list.length - 1]);
+        const Y = Number(sel.value), R = ALL.years[Y];
+        const now = new Date(), todayIdx = now.getFullYear() * 12 + now.getMonth();
+
+        // ---- KPI'lar ----
+        const cash = ALL.summary.find(x => x.cy === CURRENT_YEAR);
+        const upcoming = ALL.cal.filter(c => !c.paid && c.amount > 0.5);
+        const nextPay = upcoming[0];
+        const activeNow = contracts.filter(c => { const a = monthIdx(c); return todayIdx >= a && todayIdx < a + c.months; });
+        const curAmount = activeNow.reduce((a, c) => a + c.amount, 0);
+        let eqTxt = '—', eqNote = 'Bu ay aktif sözleşme yok';
+        if (curAmount > 0) {
+            const E = equivalentLevel(curAmount, todayIdx);
+            eqTxt = E.below ? '< AG-6/6' : E.above ? '18+ yıl' : `${lvlName(E.nearest)} · ≈${yearsTxt(E.years)} yıl`;
+            const refNow = refBrutAt(todayIdx);
+            const gap = curAmount / refNow.value - 1;
+            eqNote = `Bedel ${tl0(curAmount)} · referans ${lvlName(refNow)} ${tl0(refNow.value)} (<b>${gap >= 0 ? '+' : '−'}%${Math.abs(gap * 100).toLocaleString('tr-TR', { maximumFractionDigits: 1 })}</b>)`;
+        }
+        const kpis = [
+            { icon: 'fa-coins', lbl: `${Y} ciro (KDV hariç)`, val: tl0(R.annualRevenue), note: `${R.activeMonths} faal ay${R.P.estimated ? ' · tahmini yıl' : ''}` },
+            { icon: 'fa-wallet', lbl: `${Y} net kazanç`, val: tl0(R.net), note: `Aylık ortalama <b>${tl0(R.net / R.activeMonths)}</b>` },
+            { icon: 'fa-percentage', lbl: `${Y} gelir vergisi`, val: tl0(R.tax), note: `Efektif <b>%${(R.effective * 100).toLocaleString('tr-TR', { maximumFractionDigits: 1 })}</b> · en üst dilim %${Math.round(R.topRate * 100)}` },
+            { icon: 'fa-hourglass-half', lbl: `${CURRENT_YEAR} içinde kalan ödeme`, val: tl0(cash ? cash.remaining : 0), note: nextPay ? `Sıradaki: <b>${nextPay.date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</b> · ${TYPE_LABEL[nextPay.type]} ${tl0(nextPay.amount)}` : 'Bekleyen ödeme yok' },
+            { icon: 'fa-landmark', lbl: 'Güncel bedelin TÜBİTAK karşılığı', val: eqTxt, note: eqNote }
+        ];
+        document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+            <div class="col-xl col-md-4 col-sm-6">
+                <div class="dash-card kpi"><div class="lbl"><i class="fas ${k.icon}"></i>${k.lbl}</div><div class="val">${k.val}</div><div class="note">${k.note}</div></div>
+            </div>`).join('');
+
+        // ---- A: aylık ciro dağılımı ----
+        const seriesA = [
+            { name: 'Eline geçen net', color: VIZ.s1, values: R.months.map(x => Math.max(0, x.net)) },
+            { name: 'Gelir vergisi karşılığı', color: VIZ.s2, values: R.months.map(x => Math.max(0, x.reserve)) },
+            { name: 'Bağ-Kur + giderler', color: VIZ.s3, values: R.months.map(x => x.expense + x.bagkur) }
+        ];
+        document.getElementById('chA_title').textContent = `Aylık ciro nereye gidiyor? (${Y})`;
+        document.getElementById('chA_legend').innerHTML = legendHtml(seriesA);
+        stackedColumns(document.getElementById('chA'), MON3, seriesA, { tipTitle: i => `${MONTHS[i]} ${Y} · ciro ${tl0(R.months[i].revenue)}` });
+        document.getElementById('chA_table').innerHTML = tableHtml(['Ay', 'Ciro', 'Net', 'Vergi karşılığı', 'Bağ-Kur + gider'],
+            R.months.map((x, i) => [MONTHS[i], tl0(x.revenue), tl0(x.net), tl0(x.reserve), tl0(x.expense + x.bagkur)]));
+
+        // ---- B: sözleşme bedeli ve TÜBİTAK referansı ----
+        if (contracts.length) {
+            const r = activeRange();
+            const from = Math.min(r.from, todayIdx), to = Math.max(r.to, todayIdx) + 1;
+            const idxs = Array.from({ length: to - from + 1 }, (_, k) => from + k);
+            const xs = idxs.map(ix => `${MON3[ix % 12]} ${String(Math.floor(ix / 12)).slice(2)}`);
+            const bedel = idxs.map(ix => { const v = contracts.filter(c => { const a = monthIdx(c); return ix >= a && ix < a + c.months; }).reduce((a, c) => a + c.amount, 0); return v || null; });
+            const ref = idxs.map(ix => refBrutAt(ix).value);
+            const seriesB = [{ name: 'Sözleşme bedeliniz', color: VIZ.s1, values: bedel }, { name: 'TÜBİTAK referans brüt', color: VIZ.s2, values: ref }];
+            document.getElementById('chB_legend').innerHTML = legendHtml(seriesB, true);
+            stepLines(document.getElementById('chB'), xs, seriesB, {
+                markIdx: todayIdx - from,
+                tipTitle: i => `${MONTHS[idxs[i] % 12]} ${Math.floor(idxs[i] / 12)}`,
+                tipExtra: i => { const st = refBrutAt(idxs[i]); const b = bedel[i]; return `<div class="r tot"><span>${lvlName(st)}${b ? ' · fark' : ''}</span><span>${b ? (b >= st.value ? '+' : '−') + tl0(Math.abs(b - st.value)) : ''}</span></div>`; }
+            });
+            const ti = todayIdx - from, b = bedel[ti], rv = ref[ti];
+            document.getElementById('chB_sub').innerHTML = b ? `Aylık brüt (KDV hariç). Bu ay: bedeliniz ${tl0(b)}, referans ${tl0(rv)} → ${b >= rv ? '+' : '−'}%${Math.abs((b / rv - 1) * 100).toLocaleString('tr-TR', { maximumFractionDigits: 1 })}` : 'Aylık brüt (KDV hariç)';
+            document.getElementById('chB_table').innerHTML = tableHtml(['Ay', 'Bedeliniz', 'Referans', 'Kademe'],
+                idxs.map((ix, i) => [`${MONTHS[ix % 12]} ${Math.floor(ix / 12)}`, bedel[i] ? tl0(bedel[i]) : '—', tl0(ref[i]), lvlName(refBrutAt(ix))]));
+        } else {
+            document.getElementById('chB').innerHTML = '<p class="text-muted small mb-0">Grafik için sözleşme ekleyin.</p>';
+            document.getElementById('chB_legend').innerHTML = ''; document.getElementById('chB_table').innerHTML = '';
+        }
+
+        // ---- C: yıllara göre ödemeler ----
+        const types = [['yillik', VIZ.s1], ['gv', VIZ.s2], ['kdv', VIZ.s3], ['bagkur', VIZ.s4]];
+        const cys = ALL.cashYears;
+        const seriesC = types.map(([t, color]) => ({ name: TYPE_LABEL[t], color, values: cys.map(cy => ALL.cal.filter(c => c.cashYear === cy && c.type === t).reduce((a, c) => a + c.amount, 0)) }));
+        document.getElementById('chC_legend').innerHTML = legendHtml(seriesC);
+        stackedColumns(document.getElementById('chC'), cys.map(cy => cy + (cy > CURRENT_YEAR ? '*' : '')), seriesC, { barMax: 36, tipTitle: i => `${cys[i]} yılında ödenen${cys[i] > CURRENT_YEAR ? ' (tahmini)' : ''}` });
+        document.getElementById('chC_table').innerHTML = tableHtml(['Yıl', ...seriesC.map(se => se.name), 'Toplam'],
+            cys.map((cy, i) => [String(cy), ...seriesC.map(se => tl0(se.values[i])), tl0(seriesC.reduce((a, se) => a + se.values[i], 0))]));
+
+        // ---- D: yaklaşan ödemeler ----
+        const in30 = upcoming.filter(c => c.date - now <= 30 * 864e5).reduce((a, c) => a + c.amount, 0);
+        document.getElementById('payNextSub').innerHTML = upcoming.length ? `Önümüzdeki 30 günde <b>${tl0(in30)}</b>` : 'Bekleyen ödeme yok';
+        document.getElementById('payNext').innerHTML = upcoming.slice(0, 7).map(c => `
+            <li><div><span class="type-badge t-${c.type}">${TYPE_LABEL[c.type]}</span><div class="d mt-1">${c.date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} · ${c.desc.replace(/<[^>]+>/g, '')}</div></div><span class="a">${tl0(c.amount)}</span></li>`).join('') || '<li class="text-muted">—</li>';
+    }
+
+    // ---------- Profil ----------
+    const PROFILE_FIELDS = { pName: 'name', pPhone: 'phone', pCompany: 'company', pTaxNo: 'taxNo', pTaxOffice: 'taxOffice', pActivity: 'activity', pAddress: 'address' };
+    const VIEW_TITLES = { dashboard: 'Dashboard', calc: 'Hesaplayıcı', offer: 'Teklif hesapla', payments: 'Ödeme takvimi', profile: 'Profil' };
+    let CURRENT_VIEW = 'dashboard';
+    function showView(v) {
+        const page = (v === 'offer' || v === 'payments') ? 'calc' : v;
+        CURRENT_VIEW = v;
+        document.getElementById('dashboardView').style.display = page === 'dashboard' ? '' : 'none';
+        document.getElementById('appView').style.display = page === 'calc' ? '' : 'none';
+        document.getElementById('profileView').style.display = page === 'profile' ? '' : 'none';
+        document.querySelectorAll('.sb-item').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+        document.getElementById('mobileTitle').textContent = VIEW_TITLES[v] || '';
+        document.body.classList.remove('sb-mobile-open');
+        if (page === 'profile') renderProfileData();
+        if (page === 'dashboard') renderDashboard();
+        const target = v === 'offer' ? document.getElementById('offerCard') : v === 'payments' ? document.getElementById('calendarCard') : null;
+        if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+        else window.scrollTo(0, 0);
+    }
+    // Kenar çubuğu: masaüstünde daralt/genişlet (tercih bu tarayıcıda hatırlanır), mobilde aç/kapat
+    function initSidebar() {
+        try { if (localStorage.getItem('sbCollapsed') === '1') document.body.classList.add('sb-collapsed'); } catch (e) {}
+        document.getElementById('sbToggle').addEventListener('click', () => {
+            const c = document.body.classList.toggle('sb-collapsed');
+            try { localStorage.setItem('sbCollapsed', c ? '1' : '0'); } catch (e) {}
+        });
+        document.getElementById('sbOpen').addEventListener('click', () => document.body.classList.add('sb-mobile-open'));
+        document.getElementById('sbBackdrop').addEventListener('click', () => document.body.classList.remove('sb-mobile-open'));
+        document.querySelectorAll('.sb-item').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+    }
+    function fillProfileForm() {
+        Object.entries(PROFILE_FIELDS).forEach(([id, k]) => document.getElementById(id).value = PROFILE[k] || '');
+    }
+    function renderAccount(user) {
+        const name = PROFILE.name || user.displayName || '';
+        document.getElementById('pDisplayName').textContent = name || (user.email || '').split('@')[0];
+        document.getElementById('pEmail').textContent = user.email || '';
+        const av = document.getElementById('pAvatar');
+        if (user.photoURL) av.innerHTML = `<img src="${esc(user.photoURL)}" alt="">`;
+        else av.textContent = ((name || user.email || '?').trim()[0] || '?').toLocaleUpperCase('tr-TR');
+        const provider = (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password';
+        document.getElementById('pProvider').textContent = provider === 'google.com' ? 'Google' : 'E-posta / şifre';
+        document.getElementById('pResetPass').style.display = provider === 'password' ? '' : 'none';
+        const fdt = t => t ? new Date(t).toLocaleString('tr-TR') : '—';
+        document.getElementById('pCreated').textContent = fdt(user.metadata && user.metadata.creationTime);
+        document.getElementById('pLastLogin').textContent = fdt(user.metadata && user.metadata.lastSignInTime);
+    }
+    function renderProfileData() {
+        document.getElementById('pStatContracts').textContent = contracts.length;
+        document.getElementById('pStatExpenses').textContent = expenses.length;
+        const ys = contracts.length ? yearList() : [];
+        document.getElementById('pStatYears').textContent = ys.length ? (ys.length > 1 ? `${ys[0]}–${ys[ys.length - 1]}` : ys[0]) : '—';
+        document.getElementById('pStatTotal').textContent = fc(contracts.reduce((a, c) => a + c.amount * c.months, 0));
+        const sorted = [...contracts].sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
+        document.getElementById('pContracts').innerHTML = sorted.length ? sorted.map(c => {
+            const e = contractEnd(c);
+            return `<tr><td class="fw-bold">${esc(c.name)}</td><td>${ym(c.year, c.month)} – ${ym(e.year, e.month)}</td><td class="num">${fc(c.amount)}</td><td>${c.tevkifat ? tevText(c.tevkifat) : '—'}</td></tr>`;
+        }).join('') : '<tr><td colspan="4" class="text-center text-muted py-3">Henüz sözleşme yok</td></tr>';
+    }
+    function profileMsg(id, text, ok) {
+        const el = document.getElementById(id);
+        el.className = 'alert py-2 small mt-3 ' + (ok ? 'alert-success' : 'alert-danger');
+        el.textContent = text;
+        el.style.display = text ? '' : 'none';
+    }
+    async function saveProfile() {
+        const p = {};
+        Object.entries(PROFILE_FIELDS).forEach(([id, k]) => p[k] = document.getElementById(id).value.trim());
+        if (p.taxNo && !/^\d{10,11}$/.test(p.taxNo)) { profileMsg('pProfileMsg', 'Vergi kimlik no 10, TCKN 11 haneli rakamlardan oluşmalı.', false); return; }
+        const btn = document.getElementById('pSaveProfile');
+        btn.disabled = true;
+        try {
+            if (!window.cloudSaveProfile) throw { code: 'offline' };
+            await window.cloudSaveProfile(p);
+            PROFILE = p;
+            if (window.currentUser) renderAccount(window.currentUser);
+            profileMsg('pProfileMsg', 'Profil kaydedildi.', true);
+            markSynced();
+        } catch (e) {
+            console.error(e);
+            profileMsg('pProfileMsg', 'Profil kaydedilemedi' + cloudErr(e) + '.', false);
+        } finally { btn.disabled = false; }
+    }
+    // Bu hesaptaki sözleşme, gider ve ayarları siler (profil bilgileri kalır)
+    async function clearMyData() {
+        if (!STORAGE_UID) return;
+        if (!confirm('Bu hesaptaki tüm sözleşme ve giderler silinecek; ayarlar varsayılana dönecek. Profil bilgileriniz kalır. Devam edilsin mi?')) return;
+        resetData();
+        renderContracts(); renderExpenses(); updateCalculations();   // updateCalculations → save() yerel kaydı da günceller
+        await cloudSaveNow();
+        renderProfileData();
+        profileMsg('pAccountMsg', 'Sözleşme ve giderleriniz silindi.', true);
+    }
+    function exportJson() {
+        const data = { profile: PROFILE, calc: getState(), exportedAt: new Date().toISOString() };
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+        a.download = 'vergi-hesaplama-verilerim.json';
+        document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    // ---------- Başlat ----------
+    const YEARS_UI = Array.from({ length: 6 }, (_, i) => 2025 + i);   // 2025–2030
+    document.getElementById('cTevkifat').innerHTML = TEVKIFAT.map(t => `<option value="${t.v}">${t.label}</option>`).join('');
+    document.getElementById('cTevkifat').value = '0.9';   // varsayılan 9/10
+    document.getElementById('cMonth').innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+    renderRefControls();
+    initSidebar();
+    let dashResizeT = null;
+    window.addEventListener('resize', () => { clearTimeout(dashResizeT); dashResizeT = setTimeout(renderDashboard, 150); });
+    document.getElementById('dashYear').addEventListener('change', e => { DASH_YEAR = Number(e.target.value); renderDashboard(); });
+    document.getElementById('refPanel').addEventListener('change', e => {
+        updateRefSummary();
+        if (!String(e.target.id).startsWith('eq')) { renderContracts(); renderDashboard(); save(); }
+        if (document.getElementById('eqResult').style.display !== 'none') runEqQuery();
+    });
+    document.getElementById('eqAmount').addEventListener('keypress', e => { if (e.key === 'Enter') runEqQuery(); });
+    document.getElementById('oMonth').innerHTML = document.getElementById('cMonth').innerHTML;
+    document.getElementById('oMonth').value = '3';
+    document.getElementById('oTevkifat').innerHTML = document.getElementById('cTevkifat').innerHTML;
+    document.getElementById('oTevkifat').value = '0.9';
+    document.getElementById('cYear').innerHTML = YEARS_UI.map(y => `<option value="${y}"${y === CURRENT_YEAR ? ' selected' : ''}>${y}</option>`).join('');
+    document.getElementById('oYear').innerHTML = YEARS_UI.map(y => `<option value="${y}"${y === CURRENT_YEAR + 1 ? ' selected' : ''}>${y}</option>`).join('');
+    ['oNet', 'oDuration', 'oName'].forEach(id => document.getElementById(id).addEventListener('keypress', e => { if (e.key === 'Enter') calcOffer(); }));
+    document.getElementById('expenseYear').innerHTML = '<option value="all">Tüm yıllar</option>' +
+        YEARS_UI.map(y => `<option value="${y}"${y === CURRENT_YEAR ? ' selected' : ''}>${y}</option>`).join('');
+    document.getElementById('yearSel').addEventListener('change', e => { userYear = Number(e.target.value); updateCalculations(); });
+    ['incomeKdv', 'bagkurType', 'youngEntrepreneur'].forEach(id => document.getElementById(id).addEventListener('change', updateCalculations));
+    document.getElementById('calYear').addEventListener('change', renderCalendar);
+    ['bagkurMult', 'otherIncome', 'futureBr', 'futureMw'].forEach(id => document.getElementById(id).addEventListener('input', updateCalculations));
+    ['cAmount', 'cDuration', 'cName'].forEach(id => document.getElementById(id).addEventListener('keypress', e => { if (e.key === 'Enter') addContract(); }));
+    ['expenseAmount', 'expenseName'].forEach(id => document.getElementById(id).addEventListener('keypress', e => { if (e.key === 'Enter') addExpense(); }));
+
+    renderContracts();
+    renderExpenses();
+    updateCalculations();
+
+    // ---------- Giriş / çıkış (Firebase modülü bu fonksiyonları çağırır) ----------
+    const DEFAULTS = { incomeKdv: '0.20', bagkurType: 'indirimli', bagkurMult: '1', otherIncome: '', futureBr: '28', futureMw: '25' };
+    function resetData() {
+        contracts = []; expenses = []; userYear = null; DASH_YEAR = null;
+        Object.entries(DEFAULTS).forEach(([k, v]) => document.getElementById(k).value = v);
+        document.getElementById('youngEntrepreneur').checked = false;
+        OFFER = null; PREDICT_INFO = null;
+        setRefDefaults();
+        document.getElementById('offerResult').style.display = 'none';
+        ['oName', 'oNet'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('oDuration').value = '6';
+        document.getElementById('oTevkifat').value = '0.9';
+        document.getElementById('oMode').value = 'incremental';
+        document.getElementById('oReplace').checked = true;
+    }
+    // cloud: Firestore'daki belge ({ calc, profile }) veya null; cloudOk: Firestore'a erişilebildi mi
+    window.onUserReady = function (user, cloud, cloudOk) {
+        STORAGE_UID = user.uid;
+        window.currentUser = user;
+        CLOUD_READY = false;
+        resetData();
+        PROFILE = (cloud && cloud.profile) || {};
+        const local = readLocal();
+        applyState(cloud && cloud.calc ? cloud.calc : local);
+        renderContracts(); renderExpenses(); updateCalculations();
+        fillProfileForm(); renderAccount(user); renderProfileData();
+        document.getElementById('userEmail').textContent = user.email || user.displayName || '';
+        profileMsg('pProfileMsg', ''); profileMsg('pAccountMsg', '');
+        document.body.classList.remove('locked');
+        showView('dashboard');
+        document.getElementById('authScreen').classList.add('hidden');
+        if (cloudOk) {
+            CLOUD_READY = true;
+            if (cloud && cloud.updatedAt) { lastSyncAt = cloud.updatedAt; document.getElementById('pLastSync').textContent = cloud.updatedAt.toLocaleString('tr-TR'); setSync('<i class="fas fa-cloud me-1"></i>Bulutla eşit'); }
+            // Bulutta veri yoksa ama bu tarayıcıda varsa, ilk kez buluta taşı
+            if (!(cloud && cloud.calc) && local) cloudSaveNow();
+            else if (!(cloud && cloud.calc)) setSync('<i class="fas fa-cloud me-1"></i>Bulut hazır');
+        } else {
+            setSync('<i class="fas fa-exclamation-triangle me-1"></i>Buluta bağlanılamadı, veriler yalnızca bu tarayıcıda', true);
+        }
+    };
+    window.onUserLogout = function () {
+        clearTimeout(cloudTimer);
+        STORAGE_UID = null; CLOUD_READY = false; PROFILE = {}; window.currentUser = null;
+        resetData();
+        renderContracts(); renderExpenses(); updateCalculations();
+        setSync('');
+        document.body.classList.add('locked');
+        document.getElementById('authScreen').classList.remove('hidden');
+    };
+</script>
+
+<!-- FIREBASE GİRİŞ -->
+<script type="module">
+    const V = '12.19.0';
+    const authUI = {
+        loading: document.getElementById('authLoading'),
+        form: document.getElementById('authForm'),
+        email: document.getElementById('authEmail'),
+        pass: document.getElementById('authPass'),
+        error: document.getElementById('authError'),
+        info: document.getElementById('authInfo'),
+        submit: document.getElementById('authSubmit'),
+        sub: document.getElementById('authSub')
+    };
+    const showError = msg => { authUI.info.style.display = 'none'; authUI.error.textContent = msg; authUI.error.style.display = msg ? '' : 'none'; };
+    const showInfo = msg => { authUI.error.style.display = 'none'; authUI.info.textContent = msg; authUI.info.style.display = msg ? '' : 'none'; };
+
+    const ERRORS = {
+        'auth/invalid-email': 'E-posta adresi geçersiz.',
+        'auth/missing-password': 'Lütfen şifrenizi girin.',
+        'auth/invalid-credential': 'E-posta veya şifre hatalı.',
+        'auth/wrong-password': 'E-posta veya şifre hatalı.',
+        'auth/user-not-found': 'Bu e-posta ile kayıtlı üyelik yok.',
+        'auth/user-disabled': 'Bu hesap devre dışı bırakılmış.',
+        'auth/admin-restricted-operation': 'Bu hesapla kayıtlı üyelik yok. Üyelik için yöneticiyle iletişime geçin.',
+        'no-membership': 'Bu Google hesabıyla kayıtlı üyelik yok. Üyelik için yöneticiyle iletişime geçin.',
+        'auth/too-many-requests': 'Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.',
+        'auth/network-request-failed': 'İnternet bağlantısı kurulamadı.',
+        'auth/popup-closed-by-user': 'Google penceresi kapatıldı.',
+        'auth/cancelled-popup-request': 'Google penceresi kapatıldı.',
+        'auth/popup-blocked': 'Tarayıcı Google giriş penceresini engelledi. Açılır pencerelere izin verip tekrar deneyin.',
+        'auth/unauthorized-domain': 'Bu adres Firebase\'de yetkili alan adı olarak tanımlı değil (Firebase Console → Authentication → Settings → Authorized domains).',
+        'auth/operation-not-allowed': 'Bu giriş yöntemi Firebase Console\'da etkin değil (Authentication → Sign-in method).',
+        'auth/operation-not-supported-in-this-environment': 'Bu giriş yöntemi dosyayı doğrudan açınca çalışmaz; sayfayı bir web adresinden (http/https) açın.'
+    };
+    const errText = e => ERRORS[e && e.code] || ('Giriş yapılamadı' + (e && e.code ? ` (${e.code})` : '') + '.');
+
+    try {
+        const { initializeApp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+        const {
+            getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+            sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo
+        } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+        const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+
+        // Firebase proje ayarları (bu değerler tarayıcıya açık olacak şekilde tasarlanmıştır, gizli değildir)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0Mp-KYGp7ChgKpPyJqepTg_xsBdKlEbE",
+            authDomain: "studio-7333359535-7df7b.firebaseapp.com",
+            projectId: "studio-7333359535-7df7b",
+            storageBucket: "studio-7333359535-7df7b.firebasestorage.app",
+            messagingSenderId: "80017904408",
+            appId: "1:80017904408:web:e56d9cd478e2f43c50c46d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        auth.languageCode = 'tr';
+        const db = getFirestore(app);
+
+        const busy = on => { authUI.submit.disabled = on; authUI.submit.innerHTML = on ? '<i class="fas fa-spinner fa-spin"></i>' : 'Giriş yap'; };
+        // Google ile girişte üyelik kontrolü sürerken oturum değişikliklerini beklet
+        let googleCheck = false;
+
+        authUI.form.addEventListener('submit', async ev => {
+            ev.preventDefault();
+            const email = authUI.email.value.trim(), pass = authUI.pass.value;
+            if (!email || !pass) { showError('Lütfen e-posta ve şifrenizi girin.'); return; }
+            busy(true);
+            try { await signInWithEmailAndPassword(auth, email, pass); }
+            catch (e) { showError(errText(e)); }
+            finally { busy(false); }
+        });
+
+        document.getElementById('authReset').addEventListener('click', async () => {
+            const email = authUI.email.value.trim();
+            if (!email) { showError('Şifre sıfırlama bağlantısı için önce e-posta adresinizi yazın.'); return; }
+            try { await sendPasswordResetEmail(auth, email); showInfo('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.'); }
+            catch (e) { showError(errText(e)); }
+        });
+
+        // Google ile giriş: yalnızca daha önce üyeliği olan hesaplar. Google yeni bir hesap oluşturduysa hemen silinir.
+        document.getElementById('authGoogle').addEventListener('click', async () => {
+            showError('');
+            googleCheck = true;
+            try {
+                const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+                const info = getAdditionalUserInfo(cred);
+                if (info && info.isNewUser) {
+                    try { await cred.user.delete(); } catch (e) { await signOut(auth); }
+                    googleCheck = false;
+                    showError(errText({ code: 'no-membership' }));
+                    return;
+                }
+                googleCheck = false;
+                await handleUser(cred.user);
+            } catch (e) {
+                googleCheck = false;
+                showError(errText(e));
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            if (window.cloudSaveNow && window.currentUser) { try { await window.cloudSaveNow(); } catch (e) {} }
+            signOut(auth);
+        });
+
+        document.getElementById('pResetPass').addEventListener('click', async () => {
+            const u = auth.currentUser;
+            if (!u || !u.email) return;
+            try { await sendPasswordResetEmail(auth, u.email); window.profileMsg('pAccountMsg', `Şifre değiştirme bağlantısı ${u.email} adresine gönderildi.`, true); }
+            catch (e) { window.profileMsg('pAccountMsg', errText(e), false); }
+        });
+
+        // Firestore: users/{uid} belgesinde { calc, profile, email, updatedAt }
+        const userDoc = uid => doc(db, 'users', uid);
+        window.cloudSaveCalc = async calc => {
+            const u = auth.currentUser; if (!u) return;
+            await setDoc(userDoc(u.uid), { calc, email: u.email || null, updatedAt: serverTimestamp() }, { merge: true });
+        };
+        window.cloudSaveProfile = async profile => {
+            const u = auth.currentUser; if (!u) return;
+            await setDoc(userDoc(u.uid), { profile, email: u.email || null, updatedAt: serverTimestamp() }, { merge: true });
+        };
+
+        let shownUid = null;
+        async function handleUser(user) {
+            if (!user || shownUid === user.uid) return;
+            shownUid = user.uid;
+            authUI.pass.value = ''; showError('');
+            authUI.form.style.display = 'none';
+            authUI.loading.style.display = '';
+            authUI.loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verileriniz yükleniyor…';
+            let cloud = null, cloudOk = true;
+            try {
+                const snap = await getDoc(userDoc(user.uid));
+                if (snap.exists()) {
+                    const d = snap.data();
+                    cloud = { calc: d.calc || null, profile: d.profile || {}, updatedAt: d.updatedAt && d.updatedAt.toDate ? d.updatedAt.toDate() : null };
+                }
+            } catch (e) { console.error('Firestore okunamadı', e); cloudOk = false; }
+            authUI.loading.style.display = 'none';
+            authUI.form.style.display = '';
+            window.onUserReady(user, cloud, cloudOk);
+        }
+        onAuthStateChanged(auth, async user => {
+            if (googleCheck) return;                 // Google üyelik kontrolü bitince handleUser çağrılır
+            authUI.loading.style.display = 'none';
+            authUI.form.style.display = '';
+            if (!user) { shownUid = null; window.onUserLogout(); return; }
+            await handleUser(user);
+        });
+    } catch (e) {
+        console.error(e);
+        authUI.loading.innerHTML = '<span class="text-danger">Giriş servisine bağlanılamadı. İnternet bağlantınızı kontrol edip sayfayı yenileyin.</span>';
+    }
+</script>
+</body>
+</html>
